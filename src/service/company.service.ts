@@ -1,0 +1,152 @@
+import  sequelize from '../config/database'; // make sure you import your Sequelize instance
+import { CompanyResponse } from '../dto/ResponseDto/CompanyResponse';
+import { CreateCompanyAndAdmin } from "../dto/RequestDto/CreateCompanyAndAdmin";
+import { Address, Company, User } from "../model";
+import { createCompanyAdmin } from "./user.service";
+import { UpdateCompanyAndAdmin } from '../dto/RequestDto/UpdateCompanyAndAdmin';
+import bcrypt from 'bcrypt';
+
+
+const toCompanyDto = (company: Company): CompanyResponse => ({
+  id: company.id,
+  name: company.name,
+  phone: company.phone,
+  address: {
+    id: company.address.id,
+    street: company.address.street,
+    city: company.address.city,
+    zipCode: company.address.zipCode,
+  },
+  user: {
+    id: company.user.id,
+    email: company.user.email,
+    role: company.user.role,
+  },
+  createdAt: company.createdAt
+});
+
+
+const getAllCompanies = async (): Promise<CompanyResponse[]> => {
+  const companies = await Company.findAll({
+    include: [Address, User],
+  });
+
+  return companies.map(toCompanyDto);
+};
+
+const getCompanyById = async (id: number): Promise<CompanyResponse | null> => {
+  const company = await Company.findByPk(id, {
+    include: [Address, User],
+  });
+  return company ? toCompanyDto(company) : null; 
+};
+const getCompanyIdByOwnerId = async (ownerId: number): Promise<number | null> => {
+  const company = await Company.findOne({
+    where: {
+      userId: ownerId
+    },
+  });
+  if(!company){
+    return null
+  }
+
+  return company.id; 
+};
+
+const createCompany = async (dto: CreateCompanyAndAdmin): Promise<String> => {
+  const transaction = await sequelize.transaction();
+
+  try {
+    // 1. Create user via service (outside DB)
+    const userId = await createCompanyAdmin(dto, transaction);
+
+    // 2. Create address
+    const address = await Address.create({
+      street: dto.street,
+      city: dto.city,
+      zipCode: dto.zipCode,
+    }, { transaction });
+
+    // 3. Create company with relation
+    const company = await Company.create({
+      name: dto.companyName,
+      phone: dto.companyPhone,
+      userId: userId,
+      addressId: address.id,
+    }, { transaction });
+
+    // 4. Commit transaction
+    await transaction.commit();
+
+    return company.name;
+
+  } catch (error) {
+    // 🔥 Rollback on failure
+    await transaction.rollback();
+    throw error;
+  }
+  };
+
+  const updateCompany = async (
+    companyId: number,
+    dto: UpdateCompanyAndAdmin
+  ): Promise<String | null> => {
+    const transaction = await sequelize.transaction();
+  
+    try {
+      const company =  await Company.findByPk(companyId, {
+        include: [Address, User],
+      });
+  
+      if (!company || !company.user || !company.address) {
+        await transaction.rollback();
+        return null;
+      }
+  
+      // Update company
+      await company.update(
+        {
+          name: dto.companyName,
+          phone: dto.companyPhone,
+        },
+        { transaction }
+      );
+  
+      // Prepare user update payload
+      const userUpdates: any = {
+        email: dto.email,
+      };
+  
+      if (dto.password) {
+        const hashedPassword = await bcrypt.hash(dto.password, 10);
+        userUpdates.password = hashedPassword;
+      }
+  
+      await company.user.update(userUpdates, { transaction });
+  
+      // Update address
+      await company.address.update(
+        {
+          street: dto.street,
+          city: dto.city,
+          zipCode: dto.zipCode,
+        },
+        { transaction }
+      );
+  
+      await transaction.commit();
+  
+      return company.name;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  };
+
+  export {
+    getAllCompanies,
+    getCompanyById,
+    createCompany,
+    updateCompany,
+    getCompanyIdByOwnerId,
+  }
