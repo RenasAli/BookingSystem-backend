@@ -12,12 +12,12 @@ Address.init({
   id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
   street: { type: DataTypes.STRING, allowNull: false },
   city: { type: DataTypes.STRING, allowNull: false },
-  zipCode: { type: DataTypes.STRING, allowNull: false }
+  zipCode: {field: 'zip_code', type: DataTypes.STRING, allowNull: false }
 }, {
   sequelize,
   modelName: 'address',
-  tableName: 'addresses',
-  timestamps: true
+  tableName: 'address',
+  timestamps: false
 });
 
 export default Address;
