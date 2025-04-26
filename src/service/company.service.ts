@@ -1,10 +1,11 @@
-import  sequelize from '../config/database'; // make sure you import your Sequelize instance
+import  sequelize from '../config/database';
 import { CompanyResponse } from '../dto/ResponseDto/CompanyResponse';
 import { CreateCompanyAndAdmin } from "../dto/RequestDto/CreateCompanyAndAdmin";
 import { Address, Company, CompanyWorkday, User, Weekday } from "../model";
 import { createCompanyAdmin } from "./user.service";
 import { UpdateCompanyAndAdmin } from '../dto/RequestDto/UpdateCompanyAndAdmin';
 import bcrypt from 'bcrypt';
+import * as WorkdayService from './workday.service';
 
 
 const toCompanyDto = (company: Company): CompanyResponse => ({
@@ -67,6 +68,8 @@ const createCompany = async (dto: CreateCompanyAndAdmin): Promise<String> => {
   const transaction = await sequelize.transaction();
 
   try {
+    //  Validate workdays
+    WorkdayService.validateWorkdays(dto.workday);
 
     // 1. Create user
     const userId = await createCompanyAdmin(dto, transaction);
@@ -113,13 +116,16 @@ const createCompany = async (dto: CreateCompanyAndAdmin): Promise<String> => {
   }
   };
 
-  const updateCompany = async (
-    companyId: number,
-    dto: UpdateCompanyAndAdmin
+const updateCompany = async (
+  companyId: number,
+  dto: UpdateCompanyAndAdmin
   ): Promise<String | null> => {
     const transaction = await sequelize.transaction();
   
     try {
+      //  Validate workdays
+      WorkdayService.validateWorkdays(dto.workday);
+
       const company =  await Company.findByPk(companyId, {
         include: [Address, User],
       });

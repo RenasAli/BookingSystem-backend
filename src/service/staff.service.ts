@@ -1,11 +1,15 @@
-import  sequelize from '../config/database'; // make sure you import your Sequelize instance
+import  sequelize from '../config/database';
 import { CreateStaff } from "../dto/RequestDto/CreateStaff";
 import { Staff, Weekday } from "../model";
 import StaffWorkday from '../model/staffWorkday.model';
+import * as WorkdayService from './workday.service';
 
 const createStaff = async (staffRequest: CreateStaff, companyId: number): Promise<string> => {
     const transaction = await sequelize.transaction();
     try{
+        //  Validate workdays
+        WorkdayService.validateWorkdays(staffRequest.workday);
+
         const staff = await Staff.create({
             companyId: companyId,
             name: staffRequest.name,
@@ -35,13 +39,17 @@ const createStaff = async (staffRequest: CreateStaff, companyId: number): Promis
 
 const updateStaff = async (id: number, companyId: number, staffRequest: CreateStaff):
  Promise<string | null> => {
+
     const staff = await getStaffById(id, companyId);
     if(!staff){
         return null
     }
+
     const transaction = await sequelize.transaction();
 
     try{
+        //  Validate workdays
+        WorkdayService.validateWorkdays(staffRequest.workday);
 
         await staff.update({
             name: staffRequest.name,
