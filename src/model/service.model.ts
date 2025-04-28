@@ -12,16 +12,16 @@ class Service extends Model {
 
 Service.init({
   id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-  companyId: { type: DataTypes.INTEGER, allowNull: false },
+  companyId: { field: 'company_id', type: DataTypes.INTEGER, allowNull: false },
   name: { type: DataTypes.STRING, allowNull: false },
   description: { type: DataTypes.TEXT },
   price: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
-  durationMinutes: { type: DataTypes.INTEGER, allowNull: false }
+  durationMinutes: {field: 'duration_minutes', type: DataTypes.INTEGER, allowNull: false }
 }, {
   sequelize,
   modelName: 'service',
-  tableName: 'services',
-  timestamps: true
+  tableName: 'service',
+  timestamps: false
 });
 
 export default Service;

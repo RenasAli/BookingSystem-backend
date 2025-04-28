@@ -1,5 +1,6 @@
 enum Role {
     Admin = 'admin',
-    CompanyAdmin = 'company_Admin',
+    CompanyAdmin = 'company_admin',
+    CompanyStaff = 'company_staff',
 }
 export default Role;

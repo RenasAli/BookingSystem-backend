@@ -21,7 +21,6 @@ const createCompanyAdmin = async (
     const hashedPassword = await bcrypt.hash(admin.adminPassword, 10);
 
     const user = await User.create({
-      name: admin.adminName,
       email: admin.adminEmail,
       password: hashedPassword,
       role: Role.CompanyAdmin,

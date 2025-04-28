@@ -13,11 +13,13 @@ echo "Starting $container_name container..."
 sleep 20
 echo "Container started. Creating database..."
 docker exec -i $container_name mysql -uroot -p123123 -e "CREATE DATABASE ${database_name};"
+docker exec -i $container_name mysql --user="${user}" --database="${database_name}" --password="${password}" < "${script_dir}/SQL/booking_system.sql"
 
 
 
 if [ $? -eq 0 ]; then
     echo "Database created successfully!"
+    npx ts-node src/config/seeders/seedWeekdays.ts
 else
     echo "Error creating database."
     exit 1

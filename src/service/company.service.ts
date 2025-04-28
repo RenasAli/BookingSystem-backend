@@ -1,16 +1,21 @@
-import  sequelize from '../config/database'; // make sure you import your Sequelize instance
+import  sequelize from '../config/database';
 import { CompanyResponse } from '../dto/ResponseDto/CompanyResponse';
 import { CreateCompanyAndAdmin } from "../dto/RequestDto/CreateCompanyAndAdmin";
-import { Address, Company, User } from "../model";
+import { Address, Company, CompanyWorkday, User, Weekday } from "../model";
 import { createCompanyAdmin } from "./user.service";
 import { UpdateCompanyAndAdmin } from '../dto/RequestDto/UpdateCompanyAndAdmin';
 import bcrypt from 'bcrypt';
+import * as WorkdayService from './workday.service';
 
 
 const toCompanyDto = (company: Company): CompanyResponse => ({
   id: company.id,
   name: company.name,
+  cvr: company.cvr,
   phone: company.phone,
+  email: company.email,
+  url: company.url,
+  logo: company.logo,
   address: {
     id: company.address.id,
     street: company.address.street,
@@ -22,13 +27,19 @@ const toCompanyDto = (company: Company): CompanyResponse => ({
     email: company.user.email,
     role: company.user.role,
   },
-  createdAt: company.createdAt
+  createdAt: company.createdAt,
+  workday: company.companyWorkdays?.map((day) => ({
+    dayName: day.weekday.name,
+    isOpen: day.isOpen,
+    openTime: day.openTime,
+    closeTime: day.closeTime
+  })),
 });
 
 
 const getAllCompanies = async (): Promise<CompanyResponse[]> => {
   const companies = await Company.findAll({
-    include: [Address, User],
+    include: [Address, User, {model: CompanyWorkday, include: [Weekday]}],
   });
 
   return companies.map(toCompanyDto);
@@ -36,7 +47,7 @@ const getAllCompanies = async (): Promise<CompanyResponse[]> => {
 
 const getCompanyById = async (id: number): Promise<CompanyResponse | null> => {
   const company = await Company.findByPk(id, {
-    include: [Address, User],
+    include: [Address, User, {model: CompanyWorkday, include: [Weekday]}],
   });
   return company ? toCompanyDto(company) : null; 
 };
@@ -57,7 +68,10 @@ const createCompany = async (dto: CreateCompanyAndAdmin): Promise<String> => {
   const transaction = await sequelize.transaction();
 
   try {
-    // 1. Create user via service (outside DB)
+    //  Validate workdays
+    WorkdayService.validateWorkdays(dto.workday);
+
+    // 1. Create user
     const userId = await createCompanyAdmin(dto, transaction);
 
     // 2. Create address
@@ -66,14 +80,29 @@ const createCompany = async (dto: CreateCompanyAndAdmin): Promise<String> => {
       city: dto.city,
       zipCode: dto.zipCode,
     }, { transaction });
+    
 
     // 3. Create company with relation
     const company = await Company.create({
       name: dto.companyName,
+      cvr: dto.cvr,
+      url: dto.url,
       phone: dto.companyPhone,
+      email: dto.companyEmail,
+      logo: dto.logo,
       userId: userId,
       addressId: address.id,
     }, { transaction });
+    
+    for (const day of dto.workday) {
+      await CompanyWorkday.create({
+        companyId: company.id,
+        weekdayId: day.weekdayId, 
+        isOpen: day.isOpen,
+        openTime: day.openTime,
+        closeTime: day.closeTime,
+      }, { transaction });
+    }
 
     // 4. Commit transaction
     await transaction.commit();
@@ -87,13 +116,16 @@ const createCompany = async (dto: CreateCompanyAndAdmin): Promise<String> => {
   }
   };
 
-  const updateCompany = async (
-    companyId: number,
-    dto: UpdateCompanyAndAdmin
+const updateCompany = async (
+  companyId: number,
+  dto: UpdateCompanyAndAdmin
   ): Promise<String | null> => {
     const transaction = await sequelize.transaction();
   
     try {
+      //  Validate workdays
+      WorkdayService.validateWorkdays(dto.workday);
+
       const company =  await Company.findByPk(companyId, {
         include: [Address, User],
       });
@@ -107,14 +139,18 @@ const createCompany = async (dto: CreateCompanyAndAdmin): Promise<String> => {
       await company.update(
         {
           name: dto.companyName,
+          cvr: dto.cvr,
+          url: dto.url,
           phone: dto.companyPhone,
-        },
+          email: dto.companyEmail,
+          logo: dto.logo,
+            },
         { transaction }
       );
   
       // Prepare user update payload
       const userUpdates: any = {
-        email: dto.email,
+        email: dto.adminEmail,
       };
   
       if (dto.password) {
@@ -133,6 +169,23 @@ const createCompany = async (dto: CreateCompanyAndAdmin): Promise<String> => {
         },
         { transaction }
       );
+          // Update Workdays
+    for (const day of dto.workday) {
+      await CompanyWorkday.update(
+        {
+          isOpen: day.isOpen,
+          openTime: day.openTime,
+          closeTime: day.closeTime,
+        },
+        {
+          where: {
+            companyId: company.id,
+            weekdayId: day.weekdayId,
+          },
+          transaction,
+        }
+      );
+    }
   
       await transaction.commit();
   
