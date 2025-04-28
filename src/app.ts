@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import companyRoutes from './route/company.routes';
 import authenticationRouter from './route/authentication.routes';
 import staffRouter from './route/staff.routes';
+import serviceRouter from './route/service.routes';
 import cookieParser from 'cookie-parser';
 
 dotenv.config();
@@ -20,6 +21,7 @@ app.use(cors({
 app.use('/api', authenticationRouter);
 app.use('/api/company', companyRoutes);
 app.use('/api/staff', staffRouter);
+app.use('/api/service', serviceRouter);
 
 // DB connect
 
