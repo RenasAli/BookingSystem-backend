@@ -3,6 +3,7 @@ import sequelize from '../config/database';
 import User from './user.model';
 import Address from './address.model';
 import CompanyWorkday from './companyWorkday.model';
+import ConfirmationMethod from './enum/ConfirmationMethod';
 
 class Company extends Model {
   public id!: number;
@@ -14,6 +15,7 @@ class Company extends Model {
   public phone!: string;
   public email!: string;
   public logo?: string;
+  public confirmationMethod!: ConfirmationMethod.ConfirmationCode | ConfirmationMethod.Depositum;
   public createdAt!: Date;
   public user!: User;
   public address!: Address;
@@ -30,6 +32,7 @@ Company.init({
   phone: { type: DataTypes.STRING },
   email: { type: DataTypes.STRING },
   logo: { type: DataTypes.STRING },
+  confirmationMethod: {field: 'confirmation_method', type: DataTypes.ENUM(ConfirmationMethod.ConfirmationCode, ConfirmationMethod.Depositum), allowNull: false },
   createdAt: {field: 'created_at', type: DataTypes.DATE }
 }, {
   sequelize,

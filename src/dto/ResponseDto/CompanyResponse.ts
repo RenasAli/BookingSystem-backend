@@ -1,3 +1,4 @@
+import ConfirmationMethod from "../../model/enum/ConfirmationMethod";
 import { AddressResponse } from "./AddressResponse";
 import { CompanyWorkdayResponse } from "./CompanyWorkdayResponse";
 import { UserResponse } from "./UserRespons";
@@ -10,6 +11,7 @@ export interface CompanyResponse {
   email: string;
   url: string;
   logo?: string;
+  confirmationMethod: ConfirmationMethod;
   address: AddressResponse;
   user: UserResponse;
   createdAt: Date;

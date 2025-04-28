@@ -1,7 +1,7 @@
 import { Transaction } from "sequelize";
 import { CreateCompanyAndAdmin } from "../dto/RequestDto/CreateCompanyAndAdmin";
 import { User } from "../model";
-import Role from "../model/Role";
+import Role from "../model/enum/Role";
 import bcrypt from 'bcrypt';
 
 
