@@ -1,3 +1,4 @@
+import ConfirmationMethod from "../../model/enum/ConfirmationMethod";
 import { CreateCompanyWorkday } from "./CreateCompanyWorkday";
 
 export interface CreateCompanyAndAdmin {
@@ -9,6 +10,7 @@ export interface CreateCompanyAndAdmin {
     companyEmail: string;
     url: string;
     logo: string;
+    confirmationMethod: ConfirmationMethod;
     street: string;
     city: string;
     zipCode: string;

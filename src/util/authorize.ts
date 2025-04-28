@@ -1,6 +1,6 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
-import Role from '../model/Role';
+import Role from '../model/enum/Role';
 
 interface AuthenticatedRequest extends Request {
     userClaims?: JwtPayload & { role?: Role };

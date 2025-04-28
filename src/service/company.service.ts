@@ -16,6 +16,7 @@ const toCompanyDto = (company: Company): CompanyResponse => ({
   email: company.email,
   url: company.url,
   logo: company.logo,
+  confirmationMethod: company.confirmationMethod,
   address: {
     id: company.address.id,
     street: company.address.street,
@@ -90,6 +91,7 @@ const createCompany = async (dto: CreateCompanyAndAdmin): Promise<String> => {
       phone: dto.companyPhone,
       email: dto.companyEmail,
       logo: dto.logo,
+      confirmationMethod: dto.confirmationMethod,
       userId: userId,
       addressId: address.id,
     }, { transaction });
@@ -144,7 +146,8 @@ const updateCompany = async (
           phone: dto.companyPhone,
           email: dto.companyEmail,
           logo: dto.logo,
-            },
+          confirmationMethod: dto.confirmationMethod,
+          },
         { transaction }
       );
   

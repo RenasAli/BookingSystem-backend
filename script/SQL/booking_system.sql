@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS `booking_system`.`company` (
   `phone` VARCHAR(30),
   `email` VARCHAR(255),
   `logo` VARCHAR(255),
+  `confirmation_method` ENUM('confirmation_code', 'depositum') NOT NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_user_id`
