@@ -19,4 +19,8 @@ serviceRouter.put('/:id', async (_req, res) => {
     ServiceController.updateService(_req, res);
 });
 
+serviceRouter.delete('/:id', async (_req, res) => {
+    ServiceController.deleteService(_req, res);
+});
+
 export default serviceRouter;

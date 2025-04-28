@@ -62,9 +62,18 @@ const updateService = async (id: number, companyId: number, serviceRequest: Crea
     }
 };
 
+const deleteService = async (id: number, companyId: number): Promise<void> => {
+    const service = await getServiceById(id, companyId);
+    if (!service) {
+        throw new Error('Service not found.');
+    }
+    await service.destroy();
+};
+
 export {
     createService,
     getAllServicesByCompanyId,
     getServiceById,
-    updateService
+    updateService,
+    deleteService
 };

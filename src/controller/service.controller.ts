@@ -48,9 +48,24 @@ const updateService = async (_req: Request, res: Response) => {
     }
 };
 
+const deleteService = async (_req: Request, res: Response) => {
+    try {
+        const companyId = _req.cookies?.['SessionId'];
+        const serviceId = Number(_req.params.id);
+
+        await ServiceService.deleteService(serviceId, companyId);
+
+        return res.status(200).json({ message: `Service ${serviceId} deleted successfully!` });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Failed to delete service' });
+    }
+};
+
 export {
     createService,
     updateService,
     getAllServices,
     getServiceById,
+    deleteService
 };
