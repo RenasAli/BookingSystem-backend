@@ -1,7 +1,7 @@
 import  sequelize from '../config/database';
 import { CompanyResponse } from '../dto/ResponseDto/CompanyResponse';
 import { CreateCompanyAndAdmin } from "../dto/RequestDto/CreateCompanyAndAdmin";
-import { Address, Company, CompanyWorkday, User, Weekday } from "../model";
+import { Address, Company, CompanyWorkday, User, Weekday, Booking, Service, Staff, StaffWorkDay } from "../model";
 import { createCompanyAdmin } from "./user.service";
 import { UpdateCompanyAndAdmin } from '../dto/RequestDto/UpdateCompanyAndAdmin';
 import bcrypt from 'bcrypt';
@@ -206,6 +206,36 @@ const updateCompany = async (
         await transaction.rollback();
         return;
       }
+
+      await Booking.destroy({
+        where: { companyId },
+        transaction,
+      });
+
+      const staffMembers = await Staff.findAll({
+        where: { companyId },
+        transaction,
+      });
+      
+      for (const staff of staffMembers) {
+        await StaffWorkDay.destroy({
+          where: {
+            staffId: staff.id,
+            companyId: companyId,
+          },
+          transaction,
+        });
+      }
+      
+      await Staff.destroy({
+        where: { companyId },
+        transaction,
+      });
+  
+      await Service.destroy({
+        where: { companyId },
+        transaction,
+      });
   
       await CompanyWorkday.destroy({
         where: { companyId },
