@@ -16,4 +16,7 @@ staffRouter.get('/:id', async (_req, res) => {
 staffRouter.put('/:id', async (_req, res) => {
     StaffController.updateStaff(_req, res)
 });
+staffRouter.delete('/:id', async (_req, res) => {
+    StaffController.deleteStaff(_req, res)
+});
 export default staffRouter;

@@ -104,9 +104,37 @@ const getStaffById = async (id: number, companyId: number): Promise<Staff | null
     return staff
 };
 
+const deleteStaff = async (id: number, companyId: number): Promise<void> => {
+    const transaction = await sequelize.transaction();
+
+    try {
+        const staff = await getStaffById(id, companyId);
+        if (!staff) {
+            throw new Error('Staff not found');
+        }
+
+        await StaffWorkday.destroy({
+            where: {
+                staffId: id,
+                companyId: companyId
+            },
+            transaction
+        });
+
+        await staff.destroy({ transaction });
+
+        await transaction.commit();
+    } catch (error) {
+        await transaction.rollback();
+        throw error;
+    }
+};
+
+
 export {
     createStaff,
     updateStaff,
     getAllStaffsByCompanyId,
     getStaffById,
+    deleteStaff
 }

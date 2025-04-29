@@ -196,10 +196,38 @@ const updateCompany = async (
     }
   };
 
+  const deleteCompany = async (companyId: number): Promise<void> => {
+    const transaction = await sequelize.transaction();
+    try {
+      const company = await Company.findByPk(companyId, {
+        include: [Address, User],
+      });
+      if (!company || !company.user || !company.address) {
+        await transaction.rollback();
+        return;
+      }
+  
+      await CompanyWorkday.destroy({
+        where: { companyId },
+        transaction,
+      });
+  
+      await company.destroy({ transaction });
+      await company.user.destroy({ transaction });
+      await company.address.destroy({ transaction });
+  
+      await transaction.commit();
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  };
+
   export {
     getAllCompanies,
     getCompanyById,
     createCompany,
     updateCompany,
     getCompanyIdByOwnerId,
+    deleteCompany
   }

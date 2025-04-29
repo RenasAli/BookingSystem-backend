@@ -16,4 +16,7 @@ companyRouter.get('/:id', async (_req, res) => {
 companyRouter.put('/:id', async (_req, res) => {
   CompanyController.updateCompany(_req, res)
 });
+companyRouter.delete('/:id', async (_req, res) => {
+  CompanyController.deleteCompany(_req, res)
+});
 export default companyRouter;
