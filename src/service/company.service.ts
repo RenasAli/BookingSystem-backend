@@ -30,7 +30,7 @@ const toCompanyDto = (company: Company): CompanyResponse => ({
   },
   createdAt: company.createdAt,
   workday: company.companyWorkdays?.map((day) => ({
-    dayName: day.weekday.name,
+    weekdayId: day.weekdayId,
     isOpen: day.isOpen,
     openTime: day.openTime,
     closeTime: day.closeTime

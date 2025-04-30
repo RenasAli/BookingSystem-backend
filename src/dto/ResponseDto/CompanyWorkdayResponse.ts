@@ -1,5 +1,5 @@
 export interface CompanyWorkdayResponse {
-    dayName: string;
+    weekdayId: number;
     isOpen: boolean;
     openTime?: string | null;
     closeTime?: string | null;  
