@@ -59,9 +59,21 @@ const updateCompany = async (_req: Request, res: Response) => {
   }
 };
 
+const deleteCompany = async (_req: Request, res: Response) => {
+  try {
+    const companyId = Number(_req.params.id);
+    await CompanyService.deleteCompany(companyId);
+    res.status(200).json({ message: `Company ${companyId} deleted successfully!` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to delete company' });
+  }
+};
+
 export {
   getAllCompanies,
   getCompanyById,
   createCompanyWithAdmin,
   updateCompany,
+  deleteCompany
 }

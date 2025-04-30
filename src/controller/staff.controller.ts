@@ -48,9 +48,24 @@ const updateStaff = async (_req: Request, res: Response) => {
     return res.status(500).json({ message: 'Failed to update staff' });
   }
 };
+
+const deleteStaff = async (_req: Request, res: Response) => {
+    try{
+        const companyId = _req.cookies?.['SessionId'];
+        const staffId = Number(_req.params.id);
+        await StaffService.deleteStaff(staffId, companyId);
+        return res.status(200).json({ message: `Staff ${staffId} deleted successfully!` });
+    }catch ( err) {
+        console.error(err);
+        res.status(500).json({ message: 'Failed to delete staff' });
+
+    };
+};
+
 export {
     createStaff,
     updateStaff,
     getAllStaffs,
     getAllStaffById,
+    deleteStaff
 }
