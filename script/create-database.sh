@@ -26,6 +26,8 @@ docker exec -i $container_name mysql --user="${user}" --database="${database_nam
 if [ $? -eq 0 ]; then
     echo "Database created successfully!"
     npx ts-node src/config/seeders/allData.ts
+    # Remember to delete admin seeding when deploying to production
+    npx ts-node src/config/seeders/adminUser.ts
 else
     echo "Error creating database."
     exit 1
