@@ -15,6 +15,7 @@ export interface CreateCompanyAndAdmin {
     city: string;
     zipCode: string;
     workday: Array<CreateCompanyWorkday>;
+    logoFile?: Express.Multer.File;
   }
 
 

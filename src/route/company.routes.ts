@@ -1,9 +1,24 @@
 import {Router} from 'express';
 import * as CompanyController from '../controller/company.controller';
+import multer from 'multer';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import cloudinary from '../util/cloudinary';
+
 
 const companyRouter = Router();
 
-companyRouter.post('/', async (_req, res) => {
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'companies_logos',
+    allowed_formats: ['jpg', 'png'],
+    transformation: [{ width: 500, height: 500, crop: 'limit' }],
+  } as any,
+});
+
+const upload = multer({ storage });
+
+companyRouter.post('/',upload.single('logo'),  async (_req, res) => {
   CompanyController.createCompanyWithAdmin(_req, res )
 });
 
@@ -12,6 +27,9 @@ companyRouter.get('/', async (_req, res) => {
 });
 companyRouter.get('/:id', async (_req, res) => {
   CompanyController.getCompanyById(_req, res)
+});
+companyRouter.put('/logo/:id', upload.single('logo'), async (_req, res) => {
+  CompanyController.updateCompanyLogo(_req, res)
 });
 companyRouter.put('/:id', async (_req, res) => {
   CompanyController.updateCompany(_req, res)

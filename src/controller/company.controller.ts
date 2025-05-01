@@ -16,7 +16,8 @@ const getAllCompanies = async (_req: Request, res: Response) => {
 
 const getCompanyById = async (_req: Request, res: Response) => {
   try {
-    const company = await CompanyService.getCompanyById(Number(_req.params.id));
+    const companyId = Number(_req.cookies?.['SessionId'] ?? _req.params.id);
+    const company = await CompanyService.getCompanyById(companyId);
     if (!company) {
       return res.status(404).json({ message: 'Company not found' });
     }
@@ -29,7 +30,11 @@ const getCompanyById = async (_req: Request, res: Response) => {
 
 const createCompanyWithAdmin = async (_req: Request, res: Response) => {
   try {
-    const dto: CreateCompanyAndAdmin = _req.body;
+    const dto: CreateCompanyAndAdmin = {
+      ..._req.body,
+      workday: JSON.parse(_req.body.workday),
+      logoFile: _req.file,
+    };
 
     // Create the company and admin with address
     const company = await CompanyService.createCompany(dto);
@@ -42,7 +47,7 @@ const createCompanyWithAdmin = async (_req: Request, res: Response) => {
 };
 
 const updateCompany = async (_req: Request, res: Response) => {
-  const companyId = Number(_req.params.id);
+  const companyId = Number(_req.cookies?.['SessionId'] ?? _req.params.id);
   const dto: UpdateCompanyAndAdmin = _req.body;
 
   try {
@@ -58,10 +63,31 @@ const updateCompany = async (_req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+const updateCompanyLogo = async (_req: Request, res: Response) => {
+  const companyId = Number(_req.params.id);
+  const logo = _req.file;
+
+  try {
+    if (!logo) {
+      res.status(404).json({ message: 'File is not provided' });
+      return null
+    }
+    const updated = await CompanyService.updateCompanyLogo(companyId, logo);
+
+    if (!updated) {
+      res.status(404).json({ message: 'Company logo not updated' });
+    }
+
+    res.status(200).json(updated);
+  } catch (err) {
+    console.error('Update company log failed:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 const deleteCompany = async (_req: Request, res: Response) => {
   try {
-    const companyId = Number(_req.params.id);
+    const companyId = Number(_req.cookies?.['SessionId'] ?? _req.params.id);
     await CompanyService.deleteCompany(companyId);
     res.status(200).json({ message: `Company ${companyId} deleted successfully!` });
   } catch (error) {
@@ -75,5 +101,6 @@ export {
   getCompanyById,
   createCompanyWithAdmin,
   updateCompany,
-  deleteCompany
+  updateCompanyLogo,
+  deleteCompany,
 }
