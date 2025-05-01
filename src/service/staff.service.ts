@@ -1,7 +1,8 @@
 import  sequelize from '../config/database';
 import { CreateStaff } from "../dto/RequestDto/CreateStaff";
-import { Staff, Weekday } from "../model";
+import { Staff, User, Weekday } from "../model";
 import StaffWorkday from '../model/staffWorkday.model';
+import { createCompanyUserAsStaff } from './user.service';
 import * as WorkdayService from './workday.service';
 
 const createStaff = async (staffRequest: CreateStaff, companyId: number): Promise<string> => {
@@ -10,8 +11,11 @@ const createStaff = async (staffRequest: CreateStaff, companyId: number): Promis
         //  Validate workdays
         WorkdayService.validateWorkdays(staffRequest.workday);
 
+        const userId = await createCompanyUserAsStaff(staffRequest, transaction);
+
         const staff = await Staff.create({
             companyId: companyId,
+            userId : userId,
             name: staffRequest.name,
             phone: staffRequest.phone,
             email: staffRequest.email
@@ -103,6 +107,18 @@ const getStaffById = async (id: number, companyId: number): Promise<Staff | null
     }
     return staff
 };
+const getStaffByEmail = async (email: string): Promise<Staff | null> => {
+    
+    const staff = await Staff.findOne({
+        where: {
+            email: email,
+        },
+    });
+    if (!staff) {
+        return null
+    }
+    return staff
+};
 
 const deleteStaff = async (id: number, companyId: number): Promise<void> => {
     const transaction = await sequelize.transaction();
@@ -120,6 +136,10 @@ const deleteStaff = async (id: number, companyId: number): Promise<void> => {
             },
             transaction
         });
+        await User.destroy({
+            where: {id: staff.userId},
+            transaction
+        })
 
         await staff.destroy({ transaction });
 
@@ -136,5 +156,6 @@ export {
     updateStaff,
     getAllStaffsByCompanyId,
     getStaffById,
+    getStaffByEmail,
     deleteStaff
 }
