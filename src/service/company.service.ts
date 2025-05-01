@@ -6,6 +6,8 @@ import { createCompanyAdmin } from "./user.service";
 import { UpdateCompanyAndAdmin } from '../dto/RequestDto/UpdateCompanyAndAdmin';
 import bcrypt from 'bcrypt';
 import * as WorkdayService from './workday.service';
+import cloudinary from '../util/cloudinary'; 
+import { UploadApiResponse } from 'cloudinary';
 
 
 const toCompanyDto = (company: Company): CompanyResponse => ({
@@ -72,6 +74,16 @@ const createCompany = async (dto: CreateCompanyAndAdmin): Promise<String> => {
     //  Validate workdays
     WorkdayService.validateWorkdays(dto.workday);
 
+    // Upload logo to Cloudinary if file is provided
+    let logoUrl: string | null = null;
+    if (dto.logoFile) {
+      const uploadResult: UploadApiResponse = await cloudinary.uploader.upload(dto.logoFile.path, {
+        folder: 'company_logos',
+        public_id: `${dto.companyName.replace(/\s+/g, '_')}_logo`,
+      });
+      logoUrl = uploadResult.secure_url;
+    }
+
     // 1. Create user
     const userId = await createCompanyAdmin(dto, transaction);
 
@@ -90,7 +102,7 @@ const createCompany = async (dto: CreateCompanyAndAdmin): Promise<String> => {
       url: dto.url,
       phone: dto.companyPhone,
       email: dto.companyEmail,
-      logo: dto.logo,
+      logo: logoUrl,
       confirmationMethod: dto.confirmationMethod,
       userId: userId,
       addressId: address.id,
@@ -198,6 +210,31 @@ const updateCompany = async (
       throw error;
     }
   };
+const updateCompanyLogo = async (
+  companyId: number,
+  logoFile: Express.Multer.File
+  ): Promise<String | null> => {
+    try {
+      const company =  await Company.findByPk(companyId);
+      if (!company) {return null;}
+
+      // Upload logo to Cloudinary if file is provided
+      if (logoFile) {
+        const publicId = `${company.name.replace(/\s+/g, '_')}_logo`
+        await cloudinary.uploader.destroy(publicId);
+        const uploadResult: UploadApiResponse = await cloudinary.uploader.upload(logoFile.path, {
+          folder: 'company_logos',
+          public_id: publicId,
+        });
+
+        await company.update({logo: uploadResult.secure_url});
+      };
+      
+      return company.logo? company.logo: "";
+    } catch (error) {
+      throw error;
+    }
+  };
 
   const deleteCompany = async (companyId: number): Promise<void> => {
     const transaction = await sequelize.transaction();
@@ -244,6 +281,9 @@ const updateCompany = async (
         where: { companyId },
         transaction,
       });
+      
+      const publicId = `${company.name.replace(/\s+/g, '_')}_logo`
+      await cloudinary.uploader.destroy(publicId);
   
       await company.destroy({ transaction });
       await company.user.destroy({ transaction });
@@ -261,6 +301,7 @@ const updateCompany = async (
     getCompanyById,
     createCompany,
     updateCompany,
+    updateCompanyLogo,
     getCompanyIdByOwnerId,
     deleteCompany
   }

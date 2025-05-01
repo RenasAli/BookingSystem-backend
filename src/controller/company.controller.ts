@@ -30,7 +30,11 @@ const getCompanyById = async (_req: Request, res: Response) => {
 
 const createCompanyWithAdmin = async (_req: Request, res: Response) => {
   try {
-    const dto: CreateCompanyAndAdmin = _req.body;
+    const dto: CreateCompanyAndAdmin = {
+      ..._req.body,
+      workday: JSON.parse(_req.body.workday),
+      logoFile: _req.file,
+    };
 
     // Create the company and admin with address
     const company = await CompanyService.createCompany(dto);
@@ -59,6 +63,27 @@ const updateCompany = async (_req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+const updateCompanyLogo = async (_req: Request, res: Response) => {
+  const companyId = Number(_req.params.id);
+  const logo = _req.file;
+
+  try {
+    if (!logo) {
+      res.status(404).json({ message: 'File is not provided' });
+      return null
+    }
+    const updated = await CompanyService.updateCompanyLogo(companyId, logo);
+
+    if (!updated) {
+      res.status(404).json({ message: 'Company logo not updated' });
+    }
+
+    res.status(200).json(updated);
+  } catch (err) {
+    console.error('Update company log failed:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 const deleteCompany = async (_req: Request, res: Response) => {
   try {
@@ -76,5 +101,6 @@ export {
   getCompanyById,
   createCompanyWithAdmin,
   updateCompany,
-  deleteCompany
+  updateCompanyLogo,
+  deleteCompany,
 }
