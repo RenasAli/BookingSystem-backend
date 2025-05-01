@@ -3,6 +3,7 @@ import { CreateCompanyAndAdmin } from "../dto/RequestDto/CreateCompanyAndAdmin";
 import { User } from "../model";
 import Role from "../model/enum/Role";
 import bcrypt from 'bcrypt';
+import { CreateStaff } from "../dto/RequestDto/CreateStaff";
 
 
 const getUserById = async (id: number): Promise<User | null> => {
@@ -29,9 +30,25 @@ const createCompanyAdmin = async (
     return user.id;
   };
 
+  const createCompanyUserAsStaff = async (
+    staff: CreateStaff,
+    transaction: Transaction
+  ): Promise<number> => {
+      const hashedPassword = await bcrypt.hash(staff.password, 10);
+  
+      const user = await User.create({
+        email: staff.email,
+        password: hashedPassword,
+        role: Role.CompanyStaff,
+      },  { transaction } );
+    
+      return user.id;
+    };
+
   
 
   export {
     createCompanyAdmin,
+    createCompanyUserAsStaff,
     getUserByEmail,
   }

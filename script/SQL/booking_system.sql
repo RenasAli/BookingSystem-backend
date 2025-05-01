@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS `booking_system`.`company` (
 CREATE TABLE IF NOT EXISTS `booking_system`.`staff` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `company_id` BIGINT NOT NULL,
+  `user_id` BIGINT NOT NULL,
   `name` VARCHAR(255),
   `email` VARCHAR(255),
   `phone` VARCHAR(30),

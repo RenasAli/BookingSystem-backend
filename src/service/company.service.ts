@@ -265,6 +265,10 @@ const updateCompanyLogo = async (
           },
           transaction,
         });
+        await User.destroy({
+          where: {id: staff.userId},
+          transaction
+        });
       }
       
       await Staff.destroy({

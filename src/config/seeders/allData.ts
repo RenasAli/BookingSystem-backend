@@ -1,8 +1,10 @@
 import sequelize from '../database';
-import { Company, Address, Staff, Service, Booking, CompanyWorkday } from '../../model';
+import { Company, Address, Staff, Service, Booking, CompanyWorkday, User } from '../../model';
 import { createCompanyAdmin } from "../../service/user.service";
 import ConfirmationMethod from "../../model/enum/ConfirmationMethod";
 import { Weekday } from '../../model';
+import bcrypt from 'bcrypt';
+import Role from '../../model/enum/Role';
 
 async function seedAll() {
   const transaction = await sequelize.transaction();
@@ -11,6 +13,8 @@ async function seedAll() {
     await sequelize.authenticate();
     console.log('Database connected.');
 
+    const hashedPassword = await bcrypt.hash('123123', 10);
+
     // Dummy data
     const dto = {
       companyName: 'Test Salon',
@@ -18,7 +22,7 @@ async function seedAll() {
       url: 'test-salon',
       companyPhone: '32323223',
       companyEmail: 'test1@salon.dk',
-      adminEmail: 'test1@test.dk',
+      adminEmail: 'test@test.dk',
       adminPassword: '123123',
       logo: 'test-salon.jpg',
       confirmationMethod: ConfirmationMethod.ConfirmationCode, 
@@ -92,11 +96,28 @@ async function seedAll() {
     }
 
     // Step 5: Create staff
+    const staffRole1 = await User.create({
+        email: 'renas@mail.com',
+        password: hashedPassword,
+        role: Role.CompanyStaff
+      },
+      { transaction }
+    );
+    const staffRole2 = await User.create({
+        email: 'chris@mail.com',
+        password: hashedPassword,
+        role: Role.CompanyStaff
+      },
+      { transaction }
+    );
+
+    
     const staff1 = await Staff.create(
       {
         companyId: company.id,
+        userId: staffRole1.id,
         name: 'Renas',
-        email: 'renas@mail.com',
+        email: staffRole1.email,
         phone: '12345678'
       },
       { transaction }
@@ -105,8 +126,9 @@ async function seedAll() {
     const staff2 = await Staff.create(
       {
         companyId: company.id,
+        userId: staffRole2.id,
         name: 'Chris',
-        email: 'chris@mail.com',
+        email: staffRole2.email,
         phone: '87654321'
       },
       { transaction }

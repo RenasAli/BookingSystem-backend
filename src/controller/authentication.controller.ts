@@ -1,10 +1,12 @@
 import { Request, Response } from 'express';
-import * as AuthenticationService from '../service/authentication.service'
-import * as UserService from '../service/user.service'
-import * as CompanyService from '../service/company.service'
+import * as AuthenticationService from '../service/authentication.service';
+import * as UserService from '../service/user.service';
+import * as CompanyService from '../service/company.service';
+import * as StaffService from '../service/staff.service';
 import User from '../model/user.model';
+import Role from '../model/enum/Role';
 
-const companyLogin = async (_req: Request, res: Response) => {
+const Login = async (_req: Request, res: Response) => {
     
     try {
         const { email, password }: { email: string; password: string } = _req.body;
@@ -25,7 +27,13 @@ const companyLogin = async (_req: Request, res: Response) => {
             httpOnly: true,
             maxAge: 3 * 60 * 60 * 1000, // 3 hours
         });
-        const companyId = await CompanyService.getCompanyIdByOwnerId(user.id);
+
+        let companyId = await CompanyService.getCompanyIdByOwnerId(user.id);
+        if(user.role === Role.CompanyStaff){
+            const staff = await StaffService.getStaffByEmail(email);
+            if(!staff){return}
+            companyId = staff.companyId
+        }
         res.cookie('SessionId', companyId, {
             httpOnly: true,
             maxAge: 3 * 60 * 60 * 1000, // 3 hours
@@ -58,6 +66,6 @@ const logout = (_req: Request, res: Response)=> {
 }
 
 export {
-    companyLogin,
+    Login,
     logout
 }

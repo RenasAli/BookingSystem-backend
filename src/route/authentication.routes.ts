@@ -4,7 +4,7 @@ import * as AuthenticationController from '../controller/authentication.controll
 const authenticationRouter = Router();
 
 authenticationRouter.post('/login', async (_req, res) => {
-    AuthenticationController.companyLogin(_req, res )
+    AuthenticationController.Login(_req, res )
 });
 authenticationRouter.post('/logout', async (_req, res) => {
     AuthenticationController.logout(_req, res )
