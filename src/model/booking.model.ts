@@ -14,7 +14,7 @@ class Booking extends Model {
   public createdAt?: Date;
 }
 
-enum Status {
+export enum Status {
   pending = 'pending',
   confirmed = 'confirmed',
   cancelled = 'cancelled',

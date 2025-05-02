@@ -7,7 +7,7 @@ class OffDay extends Model {
     public date!: Date;
     public startTime?: string;
     public endTime?: string;
-  }
+}
 
   OffDay.init({
     id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
