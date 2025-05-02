@@ -19,9 +19,13 @@ do
 done
 echo "MySQL is ready!"
 
+docker exec -i $container_name mysql -uroot -p$password -e "SET GLOBAL event_scheduler = ON;"
+
 echo "Creating database..."
 docker exec -i $container_name mysql -uroot -p$password -e "CREATE DATABASE ${database_name};"
 docker exec -i $container_name mysql --user="${user}" --database="${database_name}" --password="${password}" < "${script_dir}/SQL/booking_system.sql"
+
+docker exec -i $container_name mysql --user="${user}" --database="${database_name}" --password="${password}" < "${script_dir}/SQL/create_event.sql"
 
 if [ $? -eq 0 ]; then
     echo "Database created successfully!"
