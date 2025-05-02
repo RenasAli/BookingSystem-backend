@@ -162,8 +162,8 @@ CREATE TABLE IF NOT EXISTS `booking_system`.`booking` (
   `customer_name` VARCHAR(255) NOT NULL,
   `customer_phone` VARCHAR(30) NOT NULL,
   `status` ENUM('pending', 'confirmed', 'cancelled') NOT NULL DEFAULT 'pending',
-  `start_time` TIME NOT NULL,
-  `end_time` TIME NOT NULL,
+  `start_time` DATETIME NOT NULL,
+  `end_time` DATETIME NOT NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_booking_company_id`

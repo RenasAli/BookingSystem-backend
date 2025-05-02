@@ -8,7 +8,7 @@ import bcrypt from 'bcrypt';
 import * as WorkdayService from './workday.service';
 import cloudinary from '../util/cloudinary'; 
 import { UploadApiResponse } from 'cloudinary';
-import * as WeekdagService from "./weekday.service";
+import * as WeekdayService from "./weekday.service";
 
 
 const toCompanyDto = (company: Company): CompanyResponse => ({
@@ -304,7 +304,7 @@ const deleteCompany = async (companyId: number): Promise<void> => {
 
 const isCompanyOpen = async (companyId: number, startTime: Date, endTime: Date): Promise<boolean> => {
   const weekdayName = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(startTime);
-  const weekdayId = await WeekdagService.getWeekdayIdByName(weekdayName);
+  const weekdayId = await WeekdayService.getWeekdayIdByName(weekdayName);
     
   if (!weekdayId) {
     console.log("Error: Failed to get weekday ID");

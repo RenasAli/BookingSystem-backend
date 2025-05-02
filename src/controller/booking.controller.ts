@@ -16,6 +16,20 @@ const createBooking = async (_req: Request, res: Response) => {
     }
 };
 
+const getBookingsTimeSlots = async (_req: Request, res: Response) => {
+  try {
+    const { companyId, date } = _req.body;
+
+    const slots = await BookingService.getBookingsTimeSlots(Number(companyId), String(date));
+
+    res.json(slots);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch time slots' });
+  }
+};
+
 export{
     createBooking,
+    getBookingsTimeSlots,
 }

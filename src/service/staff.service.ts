@@ -4,7 +4,7 @@ import { Booking, OffDay, Staff, User, Weekday } from "../model";
 import StaffWorkday from '../model/staffWorkday.model';
 import { createCompanyUserAsStaff } from './user.service';
 import * as WorkdayService from './workday.service';
-import * as WeekdagService from "./weekday.service";
+import * as WeekdayService from "./weekday.service";
 import { Op } from 'sequelize';
 
 
@@ -161,7 +161,7 @@ const isActiveStaff = async (staffId: number, startTime: Date, endTime: Date): P
     }
   
     const weekdayName = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(startTime);
-    const weekdayId = await WeekdagService.getWeekdayIdByName(weekdayName);
+    const weekdayId = await WeekdayService.getWeekdayIdByName(weekdayName);
   
     if (!weekdayId) {
       console.log("Error: Failed to get weekday ID");
