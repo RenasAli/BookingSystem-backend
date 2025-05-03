@@ -10,6 +10,7 @@ import cloudinary from '../util/cloudinary';
 import { UploadApiResponse } from 'cloudinary';
 import * as WeekdayService from "./weekday.service";
 import { PublicCompanyResponse } from '../dto/ResponseDto/publicCompanyResponse';
+import { getAllServicesByCompanyId } from './service.service';
 
 
 const toCompanyDto = (company: Company): CompanyResponse => ({
@@ -40,7 +41,7 @@ const toCompanyDto = (company: Company): CompanyResponse => ({
     closeTime: day.closeTime
   })),
 });
-const toPublicCompanyDto = (company: Company): PublicCompanyResponse => ({
+const toPublicCompanyDto = (company: Company, services: Service[]): PublicCompanyResponse => ({
   id: company.id,
   name: company.name,
   cvr: company.cvr,
@@ -59,6 +60,11 @@ const toPublicCompanyDto = (company: Company): PublicCompanyResponse => ({
     openTime: day.openTime,
     closeTime: day.closeTime
   })),
+  services: services?.map((service) => ({
+    id: service.id,
+    name: service.name,
+    durationMinutes: service.durationMinutes,
+  }))
 });
 
 
@@ -82,7 +88,12 @@ const getCompanyByURL = async (url: string): Promise<PublicCompanyResponse | nul
     where: {url: url},
     include: [Address, {model: CompanyWorkday, include: [Weekday]}],
   });
-  return company ? toPublicCompanyDto(company) : null;
+
+  if(!company) {
+    return null;
+  };
+  const services = await getAllServicesByCompanyId(company.id)
+  return toPublicCompanyDto(company, services);
 };
 
 const getCompanyIdByOwnerId = async (ownerId: number): Promise<number | null> => {

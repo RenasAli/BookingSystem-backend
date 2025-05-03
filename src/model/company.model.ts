@@ -4,6 +4,7 @@ import User from './user.model';
 import Address from './address.model';
 import CompanyWorkday from './companyWorkday.model';
 import ConfirmationMethod from './enum/ConfirmationMethod';
+import Service from './service.model';
 
 class Company extends Model {
   public id!: number;

@@ -18,9 +18,9 @@ const createBooking = async (_req: Request, res: Response) => {
 
 const getBookingsTimeSlots = async (_req: Request, res: Response) => {
   try {
-    const { companyId, date } = _req.body;
+    const { companyId, date, duration } = _req.body;
 
-    const slots = await BookingService.getBookingsTimeSlots(Number(companyId), String(date));
+    const slots = await BookingService.getBookingsTimeSlots(Number(companyId), String(date), Number(duration));
 
     res.json(slots);
   } catch (error) {

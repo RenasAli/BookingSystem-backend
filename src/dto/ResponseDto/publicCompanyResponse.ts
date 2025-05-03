@@ -1,3 +1,4 @@
+import { Service } from "../../model";
 import { AddressResponse } from "./AddressResponse";
 import { CompanyWorkdayResponse } from "./CompanyWorkdayResponse";
 
@@ -10,4 +11,12 @@ export interface PublicCompanyResponse {
     logo?: string;
     address: AddressResponse;
     workday: Array<CompanyWorkdayResponse>
+    services: Array<PublicServiceResponse>
 }
+
+interface PublicServiceResponse {
+    id: number;
+    name: string;
+    durationMinutes: number;
+}
+
