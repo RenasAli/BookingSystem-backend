@@ -9,8 +9,8 @@ import * as WorkdayService from './workday.service';
 import cloudinary from '../util/cloudinary'; 
 import { UploadApiResponse } from 'cloudinary';
 import * as WeekdayService from "./weekday.service";
-import { PublicCompanyResponse } from '../dto/ResponseDto/publicCompanyResponse';
 import { getAllServicesByCompanyId } from './service.service';
+import { PublicCompanyResponse } from '../dto/ResponseDto/publicCompanyResponse';
 
 
 const toCompanyDto = (company: Company): CompanyResponse => ({

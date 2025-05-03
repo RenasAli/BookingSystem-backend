@@ -1,4 +1,3 @@
-import { Service } from "../../model";
 import { AddressResponse } from "./AddressResponse";
 import { CompanyWorkdayResponse } from "./CompanyWorkdayResponse";
 
