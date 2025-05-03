@@ -9,6 +9,7 @@ import * as WorkdayService from './workday.service';
 import cloudinary from '../util/cloudinary'; 
 import { UploadApiResponse } from 'cloudinary';
 import * as WeekdayService from "./weekday.service";
+import { PublicCompanyResponse } from '../dto/ResponseDto/publicCompanyResponse';
 
 
 const toCompanyDto = (company: Company): CompanyResponse => ({
@@ -39,6 +40,26 @@ const toCompanyDto = (company: Company): CompanyResponse => ({
     closeTime: day.closeTime
   })),
 });
+const toPublicCompanyDto = (company: Company): PublicCompanyResponse => ({
+  id: company.id,
+  name: company.name,
+  cvr: company.cvr,
+  phone: company.phone,
+  email: company.email,
+  logo: company.logo,
+  address: {
+    id: company.address.id,
+    street: company.address.street,
+    city: company.address.city,
+    zipCode: company.address.zipCode,
+  },
+  workday: company.companyWorkdays?.map((day) => ({
+    weekdayId: day.weekdayId,
+    isOpen: day.isOpen,
+    openTime: day.openTime,
+    closeTime: day.closeTime
+  })),
+});
 
 
 const getAllCompanies = async (): Promise<CompanyResponse[]> => {
@@ -55,6 +76,15 @@ const getCompanyById = async (id: number): Promise<CompanyResponse | null> => {
   });
   return company ? toCompanyDto(company) : null; 
 };
+
+const getCompanyByURL = async (url: string): Promise<PublicCompanyResponse | null> => {
+  const company = await Company.findOne( {
+    where: {url: url},
+    include: [Address, {model: CompanyWorkday, include: [Weekday]}],
+  });
+  return company ? toPublicCompanyDto(company) : null;
+};
+
 const getCompanyIdByOwnerId = async (ownerId: number): Promise<number | null> => {
   const company = await Company.findOne({
     where: {
@@ -334,6 +364,7 @@ const isCompanyOpen = async (companyId: number, startTime: Date, endTime: Date):
 export {
   getAllCompanies,
   getCompanyById,
+  getCompanyByURL,
   createCompany,
   updateCompany,
   updateCompanyLogo,
