@@ -1,3 +1,6 @@
+import { StaffWorkDay } from "../model";
+import CompanyWorkDay from "../model/companyWorkday.model";
+
 const validateWorkdays = (workdays: { weekdayId: number }[]): void => {
     if (workdays.length !== 7) {
       throw new Error('Exactly 7 workdays must be provided.');
@@ -10,7 +13,21 @@ const validateWorkdays = (workdays: { weekdayId: number }[]): void => {
     }
   };
 
+const getCompanyWorkday = async (companyId: number, weekdayId: number) => {
+  return await CompanyWorkDay.findOne({
+    where: { companyId, weekdayId },
+  });
+};
+const getStaffWorkday = async (staffId: number, weekdayId: number) => {
+  return await StaffWorkDay.findOne({
+    where: { staffId, weekdayId },
+  });
+};
+
+
 export {
     validateWorkdays,
+    getCompanyWorkday,
+    getStaffWorkday
 }
   

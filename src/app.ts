@@ -7,6 +7,7 @@ import authenticationRouter from './route/authentication.routes';
 import staffRouter from './route/staff.routes';
 import serviceRouter from './route/service.routes';
 import cookieParser from 'cookie-parser';
+import bookingRouter from './route/booking.routes';
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use('/api', authenticationRouter);
 app.use('/api/company', companyRoutes);
 app.use('/api/staff', staffRouter);
 app.use('/api/service', serviceRouter);
+app.use('/api/booking', bookingRouter);
 
 // DB connect
 

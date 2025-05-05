@@ -28,6 +28,20 @@ const getCompanyById = async (_req: Request, res: Response) => {
   }
 };
 
+const getCompanyByURL = async (_req: Request, res: Response) => {
+  try {
+    const url = _req.params.url;
+    const company = await CompanyService.getCompanyByURL(url);
+    if (!company) {
+      return res.status(404).json({ message: 'Company not found' });
+    }
+    res.status(200).json(company);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch company' });
+  }
+};
+
 const createCompanyWithAdmin = async (_req: Request, res: Response) => {
   try {
     const dto: CreateCompanyAndAdmin = {
@@ -99,6 +113,7 @@ const deleteCompany = async (_req: Request, res: Response) => {
 export {
   getAllCompanies,
   getCompanyById,
+  getCompanyByURL,
   createCompanyWithAdmin,
   updateCompany,
   updateCompanyLogo,

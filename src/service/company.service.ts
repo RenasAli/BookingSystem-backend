@@ -8,6 +8,9 @@ import bcrypt from 'bcrypt';
 import * as WorkdayService from './workday.service';
 import cloudinary from '../util/cloudinary'; 
 import { UploadApiResponse } from 'cloudinary';
+import * as WeekdayService from "./weekday.service";
+import { getAllServicesByCompanyId } from './service.service';
+import { PublicCompanyResponse } from '../dto/ResponseDto/publicCompanyResponse';
 
 
 const toCompanyDto = (company: Company): CompanyResponse => ({
@@ -38,6 +41,31 @@ const toCompanyDto = (company: Company): CompanyResponse => ({
     closeTime: day.closeTime
   })),
 });
+const toPublicCompanyDto = (company: Company, services: Service[]): PublicCompanyResponse => ({
+  id: company.id,
+  name: company.name,
+  cvr: company.cvr,
+  phone: company.phone,
+  email: company.email,
+  logo: company.logo,
+  address: {
+    id: company.address.id,
+    street: company.address.street,
+    city: company.address.city,
+    zipCode: company.address.zipCode,
+  },
+  workday: company.companyWorkdays?.map((day) => ({
+    weekdayId: day.weekdayId,
+    isOpen: day.isOpen,
+    openTime: day.openTime,
+    closeTime: day.closeTime
+  })),
+  services: services?.map((service) => ({
+    id: service.id,
+    name: service.name,
+    durationMinutes: service.durationMinutes,
+  }))
+});
 
 
 const getAllCompanies = async (): Promise<CompanyResponse[]> => {
@@ -54,6 +82,20 @@ const getCompanyById = async (id: number): Promise<CompanyResponse | null> => {
   });
   return company ? toCompanyDto(company) : null; 
 };
+
+const getCompanyByURL = async (url: string): Promise<PublicCompanyResponse | null> => {
+  const company = await Company.findOne( {
+    where: {url: url},
+    include: [Address, {model: CompanyWorkday, include: [Weekday]}],
+  });
+
+  if(!company) {
+    return null;
+  };
+  const services = await getAllServicesByCompanyId(company.id)
+  return toPublicCompanyDto(company, services);
+};
+
 const getCompanyIdByOwnerId = async (ownerId: number): Promise<number | null> => {
   const company = await Company.findOne({
     where: {
@@ -128,7 +170,7 @@ const createCompany = async (dto: CreateCompanyAndAdmin): Promise<String> => {
     await transaction.rollback();
     throw error;
   }
-  };
+};
 
 const updateCompany = async (
   companyId: number,
@@ -209,7 +251,8 @@ const updateCompany = async (
       await transaction.rollback();
       throw error;
     }
-  };
+};
+
 const updateCompanyLogo = async (
   companyId: number,
   logoFile: Express.Multer.File
@@ -234,78 +277,109 @@ const updateCompanyLogo = async (
     } catch (error) {
       throw error;
     }
-  };
+};
 
-  const deleteCompany = async (companyId: number): Promise<void> => {
-    const transaction = await sequelize.transaction();
-    try {
-      const company = await Company.findByPk(companyId, {
-        include: [Address, User],
-      });
-      if (!company || !company.user || !company.address) {
-        await transaction.rollback();
-        return;
-      }
-
-      await Booking.destroy({
-        where: { companyId },
-        transaction,
-      });
-
-      const staffMembers = await Staff.findAll({
-        where: { companyId },
-        transaction,
-      });
-      
-      for (const staff of staffMembers) {
-        await StaffWorkDay.destroy({
-          where: {
-            staffId: staff.id,
-            companyId: companyId,
-          },
-          transaction,
-        });
-        await User.destroy({
-          where: {id: staff.userId},
-          transaction
-        });
-      }
-      
-      await Staff.destroy({
-        where: { companyId },
-        transaction,
-      });
-  
-      await Service.destroy({
-        where: { companyId },
-        transaction,
-      });
-  
-      await CompanyWorkday.destroy({
-        where: { companyId },
-        transaction,
-      });
-      
-      const publicId = `${company.name.replace(/\s+/g, '_')}_logo`
-      await cloudinary.uploader.destroy(publicId);
-  
-      await company.destroy({ transaction });
-      await company.user.destroy({ transaction });
-      await company.address.destroy({ transaction });
-  
-      await transaction.commit();
-    } catch (error) {
+const deleteCompany = async (companyId: number): Promise<void> => {
+  const transaction = await sequelize.transaction();
+  try {
+    const company = await Company.findByPk(companyId, {
+      include: [Address, User],
+    });
+    if (!company || !company.user || !company.address) {
       await transaction.rollback();
-      throw error;
+      return;
     }
-  };
 
-  export {
-    getAllCompanies,
-    getCompanyById,
-    createCompany,
-    updateCompany,
-    updateCompanyLogo,
-    getCompanyIdByOwnerId,
-    deleteCompany
+    await Booking.destroy({
+      where: { companyId },
+      transaction,
+    });
+
+    const staffMembers = await Staff.findAll({
+      where: { companyId },
+      transaction,
+    });
+      
+    for (const staff of staffMembers) {
+      await StaffWorkDay.destroy({
+        where: {
+          staffId: staff.id,
+          companyId: companyId,
+        },
+        transaction,
+      });
+      await User.destroy({
+        where: {id: staff.userId},
+        transaction
+      });
+    }
+      
+    await Staff.destroy({
+      where: { companyId },
+      transaction,
+    });
+  
+    await Service.destroy({
+      where: { companyId },
+      transaction,
+    });
+  
+    await CompanyWorkday.destroy({
+      where: { companyId },
+      transaction,
+    });
+      
+    const publicId = `${company.name.replace(/\s+/g, '_')}_logo`
+    await cloudinary.uploader.destroy(publicId);
+  
+    await company.destroy({ transaction });
+    await company.user.destroy({ transaction });
+    await company.address.destroy({ transaction });
+  
+    await transaction.commit();
+  }catch (error) {
+    await transaction.rollback();
+    throw error;
   }
+};
+
+const isCompanyOpen = async (companyId: number, startTime: Date, endTime: Date): Promise<boolean> => {
+  const weekdayName = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(startTime);
+  const weekdayId = await WeekdayService.getWeekdayIdByName(weekdayName);
+    
+  if (!weekdayId) {
+    console.log("Error: Failed to get weekday ID");
+    return false;
+  }
+    
+  const companyWorkday = await WorkdayService.getCompanyWorkday(companyId, weekdayId); 
+    
+  if (!companyWorkday || !companyWorkday.isOpen || !companyWorkday.openTime || !companyWorkday.closeTime) {
+    return false;
+  }
+    
+  // Convert time string like "09:00" to Date using the same day as startTime
+  const buildDateWithTime = (baseDate: Date, timeStr: string): Date => {
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    const result = new Date(baseDate);
+    result.setHours(hours, minutes, 0, 0);
+    return result;
+  };
+    
+  const openDateTime = buildDateWithTime(startTime, companyWorkday.openTime);
+  const closeDateTime = buildDateWithTime(startTime, companyWorkday.closeTime);
+    
+    return startTime >= openDateTime && endTime <= closeDateTime;
+};
+
+export {
+  getAllCompanies,
+  getCompanyById,
+  getCompanyByURL,
+  createCompany,
+  updateCompany,
+  updateCompanyLogo,
+  getCompanyIdByOwnerId,
+  deleteCompany,
+  isCompanyOpen,
+}

@@ -25,16 +25,25 @@ companyRouter.post('/',upload.single('logo'),  async (_req, res) => {
 companyRouter.get('/', async (_req, res) => {
   CompanyController.getAllCompanies(_req, res)
 });
+
 companyRouter.get('/:id', async (_req, res) => {
   CompanyController.getCompanyById(_req, res)
 });
+
+companyRouter.get('/url/:url', async (_req, res) => {
+  CompanyController.getCompanyByURL(_req, res)
+});
+
 companyRouter.put('/logo/:id', upload.single('logo'), async (_req, res) => {
   CompanyController.updateCompanyLogo(_req, res)
 });
+
 companyRouter.put('/:id', async (_req, res) => {
   CompanyController.updateCompany(_req, res)
 });
+
 companyRouter.delete('/:id', async (_req, res) => {
   CompanyController.deleteCompany(_req, res)
 });
+
 export default companyRouter;
