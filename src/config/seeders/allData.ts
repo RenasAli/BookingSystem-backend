@@ -5,6 +5,7 @@ import ConfirmationMethod from "../../model/enum/ConfirmationMethod";
 import { Weekday } from '../../model';
 import bcrypt from 'bcrypt';
 import Role from '../../model/enum/Role';
+import StaffWorkday from '../../model/staffWorkday.model';
 
 async function seedAll() {
   const transaction = await sequelize.transaction();
@@ -133,6 +134,33 @@ async function seedAll() {
       },
       { transaction }
     );
+
+    const workdays = [];
+
+for (let weekdayId = 1; weekdayId <= 7; weekdayId++) {
+  const isWeekend = weekdayId === 7; // Sunday off
+
+  workdays.push(
+    {
+      companyId: staff1.companyId,
+      staffId: staff1.id,
+      weekdayId,
+      isActive: !isWeekend,
+      startTime: isWeekend ? '00:00:00' : '09:00:00',
+      endTime: isWeekend ? '00:00:00' : '17:00:00',
+    },
+    {
+      companyId: staff2.companyId,
+      staffId: staff2.id,
+      weekdayId,
+      isActive: !isWeekend,
+      startTime: isWeekend ? '00:00:00' : '09:00:00',
+      endTime: isWeekend ? '00:00:00' : '17:00:00',
+    }
+  );
+}
+
+await StaffWorkday.bulkCreate(workdays, { transaction });
 
     // Step 6: Create services
     const service1 = await Service.create(
