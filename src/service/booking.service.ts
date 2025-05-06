@@ -21,6 +21,7 @@ const createBooking = async (bookingRequest: BookingRequest) => {
 
       const startTime = new Date(bookingRequest.startTime);
       const endTime = new Date(bookingRequest.endTime);
+      
       // Check if company is open
       const isCompanyOpen = await CompanyService.isCompanyOpen(
         bookingRequest.companyId,
@@ -68,9 +69,9 @@ const getBookingsTimeSlots = async (
   companyId: number,
   date: string, // 'YYYY-MM-DD'
   serviceDurationMinutes = 30
-): Promise<{ startTime: string; endTime: string; staffId: number }[]> => {
+): Promise<{ startTime: string; endTime: string; }[]> => {
     const staffList = await StaffService.getAllStaffsByCompanyId(companyId);
-    const result: { startTime: string; endTime: string; staffId: number, isAvailable: boolean}[] = [];
+    const result: { startTime: string; endTime: string; isAvailable: boolean}[] = [];
 
     const dayDate = new Date(date);
     const weekdayName = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(dayDate);
@@ -91,7 +92,7 @@ const getBookingsTimeSlots = async (
 
         const workStart = buildDateWithTime(workday.startTime);
         const workEnd = buildDateWithTime(workday.endTime);
-
+        
         
 
         const offDays = await OffDay.findAll({
@@ -101,6 +102,7 @@ const getBookingsTimeSlots = async (
         let offRanges: { start: Date; end: Date }[] = [];
         for (const off of offDays) {
             if (!off.startTime || !off.endTime) {
+              
                 // Full day off
                 offRanges = [{ start: workStart, end: workEnd }];
                 break;
@@ -120,34 +122,44 @@ const getBookingsTimeSlots = async (
 
         let cursor = new Date(workStart);
 
+        const now = new Date();
+        const oneHourLater = new Date(now.getTime() + 60 * 60000);
+
         while (cursor.getTime() + serviceDurationMinutes * 60000 <= workEnd.getTime()) {
             const slotStart = new Date(cursor);
             const slotEnd = new Date(cursor.getTime() + serviceDurationMinutes * 60000);
 
+            const overlapsSlotStart = new Date(cursor.getTime() + 120 * 60000);
+            const overlapsSlotEnd = new Date(cursor.getTime() + (serviceDurationMinutes + 120) * 60000);
+
             const overlapsOff = offRanges.some(
-                (off) => slotStart < off.end && slotEnd > off.start
+                (off) => overlapsSlotStart < off.end && overlapsSlotEnd > off.start
             );
             const overlapsBooking = bookings.some(
-                (b) => slotStart < b.endTime && slotEnd > b.startTime
+                (b) => overlapsSlotStart < b.endTime && overlapsSlotEnd > b.startTime
             );
 
+            const isToday = slotStart.toDateString() === now.toDateString();
+            const isTooSoon = isToday && slotStart < oneHourLater;
+
+            const isAvailable = !overlapsOff && !overlapsBooking && !isTooSoon;
+
+            const startTimeStr = slotStart.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' });
+            const endTimeStr = slotEnd.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' });
+
             const existingSlot = result.find(
-                (s) => s.startTime === slotStart.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' }) &&
-                       s.endTime === slotEnd.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' })
+                (s) => s.startTime === startTimeStr && s.endTime === endTimeStr
             );
-              
+
             if (existingSlot) {
-                // If slot exists and availability is false, make it true if this staff is available
-                if (!existingSlot.isAvailable && !overlapsOff && !overlapsBooking) {
-                  existingSlot.isAvailable = true;
+                if (!existingSlot.isAvailable && isAvailable) {
+                    existingSlot.isAvailable = true;
                 }
             } else {
-                // Only add the slot if it's not already there
                 result.push({
-                  startTime: slotStart.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' }),
-                  endTime: slotEnd.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' }),
-                  staffId: staff.id, // optional – you can also remove this if not needed in frontend
-                  isAvailable: !overlapsOff && !overlapsBooking,
+                    startTime: startTimeStr,
+                    endTime: endTimeStr,
+                    isAvailable,
                 });
             }
 
