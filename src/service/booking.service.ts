@@ -160,10 +160,44 @@ const getBookingsTimeSlots = async (
   return result;
 };
 
-  
+const getBookingById = async (bookingId: number, companyId: number): Promise<Booking | null> => {
+    return await Booking.findOne({
+        where: { id: bookingId, companyId: companyId },
+        include: [Staff],
+    });
+}
+
+const deleteBooking = async (bookingId: number, companyId: number): Promise<void> => {
+    const booking = await Booking.findOne({ where: { id: bookingId, companyId: companyId } });
+    if (!booking) throw new Error("Booking not found");
+
+    await booking.destroy();
+}
+
+const getBookingsByDate = async (companyId: number, date: string): Promise<Booking[]> => {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    return await Booking.findAll({
+        where: {
+            companyId: companyId,
+            startTime: {
+                [Op.gte]: startOfDay,
+                [Op.lte]: endOfDay,
+            },
+        },
+        include: [Staff],
+    });
+}
 
 export {
     getAllBookingsByCompanyId,
     createBooking,
     getBookingsTimeSlots,
+    getBookingById,
+    deleteBooking,
+    getBookingsByDate,
 }

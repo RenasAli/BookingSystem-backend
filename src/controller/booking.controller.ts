@@ -29,7 +29,64 @@ const getBookingsTimeSlots = async (_req: Request, res: Response) => {
   }
 };
 
+const getAllBookings = async (_req: Request, res: Response) => {
+  try {
+    const companyId = _req.cookies?.['SessionId'];
+    const bookings = await BookingService.getAllBookingsByCompanyId(companyId);
+    return res.status(200).json(bookings);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch bookings' });
+  }
+}
+
+const getBookingsById = async (_req: Request, res: Response) => {
+  try {
+    const companyId = _req.cookies?.['SessionId'];
+    const booking = await BookingService.getBookingById(Number(_req.params.id), companyId);
+    return res.status(200).json(booking);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch booking' });
+  }
+}
+
+const deleteBooking = async (_req: Request, res: Response) => {
+  try {
+    const companyId = _req.cookies?.['SessionId'];
+    const bookingId = Number(_req.params.id);
+
+    await BookingService.deleteBooking(bookingId, companyId);
+
+    return res.status(200).json({ message: `Booking ${bookingId} deleted successfully!` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to delete booking' });
+  }
+}
+
+const getBookingByDate = async (_req: Request, res: Response) => {
+  try {
+    const companyId = _req.cookies?.['SessionId'];
+    const date = _req.params.date;
+
+    if (!companyId || !date) {
+      return res.status(400).json({ message: "Missing companyId or date" });
+    }
+
+    const bookings = await BookingService.getBookingsByDate(parseInt(companyId), date);
+    return res.status(200).json(bookings);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch bookings' });
+  }
+}
+
 export{
     createBooking,
     getBookingsTimeSlots,
+    getAllBookings,
+    getBookingsById,
+    deleteBooking,
+    getBookingByDate
 }
