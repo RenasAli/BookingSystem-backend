@@ -173,10 +173,31 @@ const deleteBooking = async (bookingId: number, companyId: number): Promise<void
 
     await booking.destroy();
 }
+
+const getBookingsByDate = async (companyId: number, date: string): Promise<Booking[]> => {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    return await Booking.findAll({
+        where: {
+            companyId: companyId,
+            startTime: {
+                [Op.gte]: startOfDay,
+                [Op.lte]: endOfDay,
+            },
+        },
+        include: [Staff],
+    });
+}
+
 export {
     getAllBookingsByCompanyId,
     createBooking,
     getBookingsTimeSlots,
     getBookingById,
-    deleteBooking
+    deleteBooking,
+    getBookingsByDate,
 }

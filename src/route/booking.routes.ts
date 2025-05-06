@@ -25,4 +25,8 @@ bookingRouter.delete('/:id', async (_req, res) => {
     BookingController.deleteBooking(_req, res )
 })
 
+bookingRouter.get('/date/:date', async (_req, res) => {
+    BookingController.getBookingByDate(_req, res )
+})
+
 export default bookingRouter;

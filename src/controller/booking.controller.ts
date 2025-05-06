@@ -65,10 +65,28 @@ const deleteBooking = async (_req: Request, res: Response) => {
   }
 }
 
+const getBookingByDate = async (_req: Request, res: Response) => {
+  try {
+    const companyId = _req.cookies?.['SessionId'];
+    const date = _req.params.date;
+
+    if (!companyId || !date) {
+      return res.status(400).json({ message: "Missing companyId or date" });
+    }
+
+    const bookings = await BookingService.getBookingsByDate(parseInt(companyId), date);
+    return res.status(200).json(bookings);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch bookings' });
+  }
+}
+
 export{
     createBooking,
     getBookingsTimeSlots,
     getAllBookings,
     getBookingsById,
-    deleteBooking
+    deleteBooking,
+    getBookingByDate
 }
