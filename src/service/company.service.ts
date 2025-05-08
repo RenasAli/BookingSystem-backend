@@ -11,6 +11,7 @@ import { UploadApiResponse } from 'cloudinary';
 import * as WeekdayService from "./weekday.service";
 import { getAllServicesByCompanyId } from './service.service';
 import { PublicCompanyResponse } from '../dto/ResponseDto/PublicCompanyResponse';
+import StaffWorkday from '../model/staffWorkday.model';
 
 
 const toCompanyDto = (company: Company): CompanyResponse => ({
@@ -159,8 +160,26 @@ const createCompany = async (dto: CreateCompanyAndAdmin): Promise<String> => {
         closeTime: day.closeTime,
       }, { transaction });
     }
+    // 2. Create the owner as a staff
+    const staff = await Staff.create({
+      companyId: company.id,
+      userId : userId,
+      name: dto.adminName,
+      phone: dto.companyPhone,
+      email: dto.adminEmail
+    },{transaction})
 
-    // 4. Commit transaction
+    for (let weekdayId = 1; weekdayId <= 7; weekdayId++) {    
+      await StaffWorkday.create({
+          companyId: company.id,
+          staffId: staff.id,
+          weekdayId,
+          isActive: false,
+          startTime: '00:00:00',
+          endTime:  '00:00:00',
+      }, { transaction });
+    }
+
     await transaction.commit();
 
     return company.name;

@@ -24,6 +24,7 @@ async function seedAll() {
       companyPhone: '32323223',
       companyEmail: 'test1@salon.dk',
       adminEmail: 'test@test.dk',
+      adminName: 'Test Admin',
       adminPassword: '123123',
       logo: 'test-salon.jpg',
       confirmationMethod: ConfirmationMethod.ConfirmationCode, 

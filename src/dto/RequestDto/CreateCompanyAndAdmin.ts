@@ -3,6 +3,7 @@ import { CreateCompanyWorkday } from "./CreateCompanyWorkday";
 
 export interface CreateCompanyAndAdmin {
     adminEmail: string;
+    adminName: string;
     adminPassword: string;
     companyName: string;
     cvr: string;
