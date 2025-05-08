@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import * as BookingService from "../service/booking.service";
 import BookingRequest from '../dto/RequestDto/BookingRequest';
-
+import { CreateBooking } from '../dto/RequestDto/CreateBooking';
 
 const createBooking = async (_req: Request, res: Response) => {
     try {
@@ -14,6 +14,18 @@ const createBooking = async (_req: Request, res: Response) => {
       console.error(err);
       return res.status(500).json({ message: 'Failed to create booking' });
     }
+};
+
+const createBookingByStaff = async (_req: Request, res: Response) => {
+    try{
+        const companyId = _req.cookies?.['SessionId'];
+        const dto: CreateBooking = _req.body;
+        const booking = await BookingService.createBookingByStaff(dto, companyId);
+        return res.status(201).send(`${booking} is created successfully!`);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Failed to create Booking by staff' });
+  }
 };
 
 const getBookingsTimeSlots = async (_req: Request, res: Response) => {
@@ -82,11 +94,27 @@ const getBookingByDate = async (_req: Request, res: Response) => {
   }
 }
 
+const updateBooking = async (_req: Request, res: Response) => {
+  try {
+    const companyId = _req.cookies?.['SessionId'];
+    const bookingId = Number(_req.params.id);
+    const dto: CreateBooking = _req.body;
+
+    const booking = await BookingService.updateBooking(bookingId, companyId, { ...dto, companyId: Number(companyId) });
+    return res.status(200).send(`${booking} is updated successfully!`);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Failed to update booking' });
+  }
+}
+
 export{
     createBooking,
     getBookingsTimeSlots,
     getAllBookings,
     getBookingsById,
     deleteBooking,
-    getBookingByDate
+    getBookingByDate,
+    createBookingByStaff,
+    updateBooking
 }

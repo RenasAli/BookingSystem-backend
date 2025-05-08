@@ -8,6 +8,9 @@ bookingRouter.post('/', async (_req, res) => {
     BookingController.createBooking(_req, res )
 })
 
+bookingRouter.post('/by-staff', async (_req, res) => {
+    BookingController.createBookingByStaff(_req, res )
+})
 
 bookingRouter.get('/available-times', async (_req, res) => {
     BookingController.getBookingsTimeSlots(_req, res )
@@ -27,6 +30,10 @@ bookingRouter.delete('/:id', async (_req, res) => {
 
 bookingRouter.get('/date/:date', async (_req, res) => {
     BookingController.getBookingByDate(_req, res )
+})
+
+bookingRouter.put('/:id', async (_req, res) => {
+    BookingController.updateBooking(_req, res )
 })
 
 export default bookingRouter;
