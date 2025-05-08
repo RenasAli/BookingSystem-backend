@@ -1,4 +1,5 @@
 import BookingRequest from "../dto/RequestDto/BookingRequest";
+import { CreateBooking } from "../dto/RequestDto/CreateBooking";
 import { Booking, OffDay, Staff } from "../model";
 import { Status } from "../model/booking.model";
 import * as CompanyService from "./company.service"
@@ -6,7 +7,6 @@ import * as StaffService from "./staff.service";
 import * as WeekdayService from "./weekday.service";
 import * as WorkdayService from "./workday.service";
 import { Op } from "sequelize";
-
 
 const getAllBookingsByCompanyId = async (companyId: number): Promise<Booking[]> => {
     return await Booking.findAll({
@@ -82,6 +82,47 @@ const createBooking = async (bookingRequest: BookingRequest) => {
     
 };
 
+const createBookingByStaff = async (bookingRequest: CreateBooking, companyId: number) => {
+    try {
+
+        const startTime = new Date(bookingRequest.startTime);
+        const endTime = new Date(bookingRequest.endTime);
+
+        const isCompanyOpen = await CompanyService.isCompanyOpen(
+            companyId,
+            startTime,
+            endTime
+          );
+      
+          if (!isCompanyOpen) {
+            throw new Error(`Error creating booking: The company is closed at this time }`);
+          }
+
+          const staffId = await StaffService.getAvailableStaffId(
+            companyId,
+            startTime,
+            endTime
+          );
+      
+          if (!staffId) {
+            throw new Error(`Error creating booking: No staff available at this time }`);
+          }
+
+        const newBooking = await Booking.create({
+            companyId: companyId,
+            staffId: staffId,
+            serviceId: bookingRequest.serviceId,
+            customerName: bookingRequest.customerName,
+            customerPhone: bookingRequest.customerPhone,
+            status: Status.pending,
+            startTime: startTime,
+            endTime: endTime,
+        });
+        return newBooking;
+    } catch (error) {
+        throw new Error(`Error creating booking by staff: ${error instanceof Error ? error.message : String(error)}`);
+    }
+}
 
 const getBookingsTimeSlots = async (
   companyId: number,
@@ -223,6 +264,45 @@ const getBookingsByDate = async (companyId: number, date: string): Promise<Booki
     });
 }
 
+const updateBooking = async (bookingId: number, companyId: number, bookingRequest: BookingRequest): Promise<Booking | null> => {
+    const booking = await Booking.findOne({ where: { id: bookingId, companyId: companyId } });
+    if (!booking) return null;
+    
+        const startTime = new Date(bookingRequest.startTime);
+        const endTime = new Date(bookingRequest.endTime);
+    
+        const isCompanyOpen = await CompanyService.isCompanyOpen(
+            companyId,
+            startTime,
+            endTime
+        );
+    
+        if (!isCompanyOpen) {
+            throw new Error(`Error creating booking: The company is closed at this time }`);
+        }
+
+        const staffId = await StaffService.getAvailableStaffId(
+            companyId,
+            startTime,
+            endTime
+          );
+      
+          if (!staffId) {
+            throw new Error(`Error creating booking: No staff available at this time }`);
+          }
+    
+        await booking.update({
+            serviceId: bookingRequest.serviceId,
+            customerName: bookingRequest.customerName,
+            customerPhone: bookingRequest.customerPhone,
+            status: Status.pending,
+            startTime: startTime,
+            endTime: endTime,
+        });
+    
+        return booking;
+    }   
+
 export {
     getAllBookingsByCompanyId,
     createBooking,
@@ -231,4 +311,6 @@ export {
     deleteBooking,
     getBookingsByDate,
     updateBookingStatus,
+    createBookingByStaff,
+    updateBooking,
 }
