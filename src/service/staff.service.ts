@@ -13,7 +13,7 @@ import * as UserService from "./user.service"
 const createStaff = async (staffRequest: CreateStaff, companyId: number): Promise<string> => {
     const transaction = await sequelize.transaction();
     try{
-        WorkdayService.validateWorkdays(staffRequest.workday);
+        WorkdayService.validateWorkdays(staffRequest.staffWorkdays);
 
         const userId = await createCompanyUserAsStaff(staffRequest, transaction);
 
@@ -25,7 +25,7 @@ const createStaff = async (staffRequest: CreateStaff, companyId: number): Promis
             email: staffRequest.email
         },{transaction})
 
-        for (const day of staffRequest.workday) {
+        for (const day of staffRequest.staffWorkdays) {
             await StaffWorkday.create({
               companyId: companyId,
               weekdayId: day.weekdayId,
@@ -56,7 +56,7 @@ const updateStaff = async (id: number, companyId: number, staffRequest: CreateSt
     const transaction = await sequelize.transaction();
 
     try{
-        WorkdayService.validateWorkdays(staffRequest.workday);
+        WorkdayService.validateWorkdays(staffRequest.staffWorkdays);
 
         await staff.update({
             name: staffRequest.name,
@@ -69,7 +69,7 @@ const updateStaff = async (id: number, companyId: number, staffRequest: CreateSt
     
         },{transaction});
 
-        for (const day of staffRequest.workday) {
+        for (const day of staffRequest.staffWorkdays) {
             await StaffWorkday.update({
               isActive: day.isActive,
               startTime: day.startTime,

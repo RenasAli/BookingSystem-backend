@@ -5,5 +5,5 @@ export interface CreateStaff {
     email: string;
     password: string;
     phone?: string;
-    workday: Array<CreateStaffWorkday>
+    staffWorkdays: Array<CreateStaffWorkday>
 }
