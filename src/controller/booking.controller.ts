@@ -26,7 +26,7 @@ const createBooking = async (_req: Request, res: Response) => {
 
 const createBookingByStaff = async (_req: Request, res: Response) => {
     try{
-        const companyId = _req.cookies?.['SessionId'];
+        const companyId = _req.cookies?.[''];
         const dto: CreateBooking = _req.body;
         const booking = await BookingService.createBookingByStaff(dto, companyId);
         return res.status(201).send(`${booking} is created successfully!`);
@@ -51,7 +51,7 @@ const getBookingsTimeSlots = async (_req: Request, res: Response) => {
 
 const getAllBookings = async (_req: Request, res: Response) => {
   try {
-    const companyId = _req.cookies?.['SessionId'];
+    const companyId = _req.cookies?.['sessionId'];
     const bookings = await BookingService.getAllBookingsByCompanyId(companyId);
     return res.status(200).json(bookings);
   } catch (error) {
@@ -62,7 +62,7 @@ const getAllBookings = async (_req: Request, res: Response) => {
 
 const getBookingsById = async (_req: Request, res: Response) => {
   try {
-    const companyId = _req.cookies?.['SessionId'];
+    const companyId = _req.cookies?.['sessionId'];
     const booking = await BookingService.getBookingById(Number(_req.params.id), companyId);
     return res.status(200).json(booking);
   } catch (error) {
@@ -73,7 +73,7 @@ const getBookingsById = async (_req: Request, res: Response) => {
 
 const deleteBooking = async (_req: Request, res: Response) => {
   try {
-    const companyId = _req.cookies?.['SessionId'];
+    const companyId = _req.cookies?.['sessionId'];
     const bookingId = Number(_req.params.id);
 
     await BookingService.deleteBooking(bookingId, companyId);
@@ -87,7 +87,7 @@ const deleteBooking = async (_req: Request, res: Response) => {
 
 const getBookingByDate = async (_req: Request, res: Response) => {
   try {
-    const companyId = _req.cookies?.['SessionId'];
+    const companyId = _req.cookies?.['sessionId'];
     const date = _req.params.date;
 
     if (!companyId || !date) {
@@ -104,7 +104,7 @@ const getBookingByDate = async (_req: Request, res: Response) => {
 
 const updateBooking = async (_req: Request, res: Response) => {
   try {
-    const companyId = _req.cookies?.['SessionId'];
+    const companyId = _req.cookies?.['sessionId'];
     const bookingId = Number(_req.params.id);
     const dto: CreateBooking = _req.body;
 

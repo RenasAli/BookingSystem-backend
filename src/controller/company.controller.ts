@@ -16,7 +16,7 @@ const getAllCompanies = async (_req: Request, res: Response) => {
 
 const getCompanyById = async (_req: Request, res: Response) => {
   try {
-    const companyId = Number(_req.cookies?.['SessionId'] ?? _req.params.id);
+    const companyId = Number(_req.cookies?.['sessionId'] ?? _req.params.id);
     const company = await CompanyService.getCompanyById(companyId);
     if (!company) {
       return res.status(404).json({ message: 'Company not found' });
@@ -61,7 +61,7 @@ const createCompanyWithAdmin = async (_req: Request, res: Response) => {
 };
 
 const updateCompany = async (_req: Request, res: Response) => {
-  const companyId = Number(_req.cookies?.['SessionId'] ?? _req.params.id);
+  const companyId = Number(_req.cookies?.['sessionId'] ?? _req.params.id);
   const dto: UpdateCompanyAndAdmin = _req.body;
 
   try {
@@ -101,7 +101,7 @@ const updateCompanyLogo = async (_req: Request, res: Response) => {
 
 const deleteCompany = async (_req: Request, res: Response) => {
   try {
-    const companyId = Number(_req.cookies?.['SessionId'] ?? _req.params.id);
+    const companyId = Number(_req.cookies?.['sessionId'] ?? _req.params.id);
     await CompanyService.deleteCompany(companyId);
     res.status(200).json({ message: `Company ${companyId} deleted successfully!` });
   } catch (error) {

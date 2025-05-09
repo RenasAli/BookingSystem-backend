@@ -4,7 +4,7 @@ import { CreateService } from '../dto/RequestDto/CreateService';
 
 const getAllServices = async (_req: Request, res: Response) => {
     try {
-        const companyId = _req.cookies?.['SessionId'];
+        const companyId = _req.cookies?.['sessionId'];
         const services = await ServiceService.getAllServicesByCompanyId(companyId);
         return res.status(200).json(services);
     } catch (err) {
@@ -15,7 +15,7 @@ const getAllServices = async (_req: Request, res: Response) => {
 
 const getServiceById = async (_req: Request, res: Response) => {
     try {
-        const companyId = _req.cookies?.['SessionId'];
+        const companyId = _req.cookies?.['sessionId'];
         const service = await ServiceService.getServiceById(Number(_req.params.id), companyId);
         return res.status(200).json(service);
     } catch (err) {
@@ -26,7 +26,7 @@ const getServiceById = async (_req: Request, res: Response) => {
 
 const createService = async (_req: Request, res: Response) => {
     try {
-        const companyId = _req.cookies?.['SessionId'];
+        const companyId = _req.cookies?.['sessionId'];
         const dto: CreateService = _req.body;
         const service = await ServiceService.createService(dto, companyId);
         return res.status(201).send(`${service} is created successfully!`);
@@ -38,7 +38,7 @@ const createService = async (_req: Request, res: Response) => {
 
 const updateService = async (_req: Request, res: Response) => {
     try {
-        const companyId = _req.cookies?.['SessionId'];
+        const companyId = _req.cookies?.['sessionId'];
         const dto: CreateService = _req.body;
         const service = await ServiceService.updateService(Number(_req.params.id), companyId, dto);
         return res.status(201).send(`${service} is update successfully!`);
@@ -50,7 +50,7 @@ const updateService = async (_req: Request, res: Response) => {
 
 const deleteService = async (_req: Request, res: Response) => {
     try {
-        const companyId = _req.cookies?.['SessionId'];
+        const companyId = _req.cookies?.['sessionId'];
         const serviceId = Number(_req.params.id);
 
         await ServiceService.deleteService(serviceId, companyId);
