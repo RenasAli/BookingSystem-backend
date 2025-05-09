@@ -34,10 +34,12 @@ const Login = async (_req: Request, res: Response) => {
             if(!staff){return}
             companyId = staff.companyId
         }
-        res.cookie('SessionId', companyId, {
-            httpOnly: true,
-            maxAge: 3 * 60 * 60 * 1000, // 3 hours
-        });
+        if(companyId){
+            res.cookie('SessionId', companyId, {
+                httpOnly: true,
+                maxAge: 3 * 60 * 60 * 1000, // 3 hours
+            });
+        }
   
         return res.status(200).json({
             message: 'You successfully logged in.',

@@ -1,15 +1,23 @@
 import { Request, Response } from 'express';
 import * as BookingService from "../service/booking.service";
+import * as PaymentService from "../service/payment.service";
+import * as CompanyService from "../service/company.service";
 import BookingRequest from '../dto/RequestDto/BookingRequest';
+import ConfirmationMethod from '../model/enum/ConfirmationMethod';
+
 import { CreateBooking } from '../dto/RequestDto/CreateBooking';
 
 const createBooking = async (_req: Request, res: Response) => {
     try {
       const request: BookingRequest = _req.body;
-      
+      const company = await CompanyService.getCompanyById(request.companyId)
       const booking = await BookingService.createBooking(request);
-  
-      return res.status(201).send(booking);
+      if(company?.confirmationMethod === ConfirmationMethod.Depositum){
+        const paymentUrl = await PaymentService.createPaymentSession(booking, company);
+        return res.status(201).send(paymentUrl);
+      } else {
+        return res.status(201).send(booking);
+      }
     } catch (err) {
       console.error(err);
       return res.status(500).json({ message: 'Failed to create booking' });

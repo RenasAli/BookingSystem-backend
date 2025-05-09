@@ -16,6 +16,24 @@ const getAllBookingsByCompanyId = async (companyId: number): Promise<Booking[]> 
 
 }
 
+const updateBookingStatus = async (bookingId: number, companyId: number, status: Status): Promise<string> => {
+    try {
+        const booking = await getBookingById(bookingId, companyId);
+        if (!booking){
+            throw new Error(`Error updating booking status with bookinId: ${bookingId} `)
+        }
+
+        await booking.update({
+            status: status
+        });
+
+        return booking.customerName
+
+    } catch (error) {
+        throw new Error(`Error updating booking status: ${error instanceof Error ? error.message : String(error)}`);
+    }
+};
+
 const createBooking = async (bookingRequest: BookingRequest) => {
     try {
 
@@ -292,6 +310,7 @@ export {
     getBookingById,
     deleteBooking,
     getBookingsByDate,
+    updateBookingStatus,
     createBookingByStaff,
     updateBooking,
 }
