@@ -6,12 +6,13 @@ import { createCompanyUserAsStaff } from './user.service';
 import * as WorkdayService from './workday.service';
 import * as WeekdayService from "./weekday.service";
 import { Op } from 'sequelize';
+import { UpdateProfile } from '../dto/RequestDto/updateProfile';
+import * as UserService from "./user.service"
 
 
 const createStaff = async (staffRequest: CreateStaff, companyId: number): Promise<string> => {
     const transaction = await sequelize.transaction();
     try{
-        //  Validate workdays
         WorkdayService.validateWorkdays(staffRequest.workday);
 
         const userId = await createCompanyUserAsStaff(staffRequest, transaction);
@@ -38,7 +39,6 @@ const createStaff = async (staffRequest: CreateStaff, companyId: number): Promis
         return staff.name;
 
     } catch (error) {
-        // 🔥 Rollback on failure
         await transaction.rollback();
         throw error;
     }
@@ -48,14 +48,14 @@ const updateStaff = async (id: number, companyId: number, staffRequest: CreateSt
  Promise<string | null> => {
 
     const staff = await getStaffById(id, companyId);
-    if(!staff){
+    const user = await UserService.getUserByEmail(staff?.email ?? "");
+    if(!staff || !user){
         return null
     }
 
     const transaction = await sequelize.transaction();
 
     try{
-        //  Validate workdays
         WorkdayService.validateWorkdays(staffRequest.workday);
 
         await staff.update({
@@ -63,6 +63,11 @@ const updateStaff = async (id: number, companyId: number, staffRequest: CreateSt
             phone: staffRequest.phone,
             email: staffRequest.email
         }, {transaction});
+
+        await user.update({
+          email: staffRequest.email
+    
+        },{transaction});
 
         for (const day of staffRequest.workday) {
             await StaffWorkday.update({
@@ -82,12 +87,46 @@ const updateStaff = async (id: number, companyId: number, staffRequest: CreateSt
         return staff.name;
 
     } catch (error) {
-        // 🔥 Rollback on failure
         await transaction.rollback();
         throw error;
     }
     
 };
+
+const updateStaffProfile = async (staffId: number , companyId: number,profile: UpdateProfile) =>{
+  const staff = await getStaffById(staffId, companyId);
+  const user = await UserService.getUserByEmail(staff?.email ?? "");
+  
+  if (!staff || !user) {
+    return null
+  }
+  const transaction = await sequelize.transaction();
+  try{
+    
+    
+    await staff.update({
+      name: profile.name,
+      email: profile.email,
+      phone: profile.phone,
+    }, {transaction});
+
+    await user.update({
+      email: profile.email
+
+    },{transaction});
+
+
+
+    await transaction.commit();
+  
+    return staff.name
+
+  }catch (error) {
+        await transaction.rollback();
+        throw error;
+    }
+  
+}
 
 const getAllStaffsByCompanyId = async (companyId: number): Promise<Staff[]> =>{
     return await Staff.findAll({
@@ -154,7 +193,6 @@ const deleteStaff = async (id: number, companyId: number): Promise<void> => {
 };
 
 const isActiveStaff = async (staffId: number, startTime: Date, endTime: Date): Promise<boolean> => {
-    // Validate dates
     if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
       console.error("Invalid date input");
       return false;
@@ -184,7 +222,6 @@ const isActiveStaff = async (staffId: number, startTime: Date, endTime: Date): P
     const startDateTime = buildDateWithTime(startTime, staffWorkday.startTime);
     const endDateTime = buildDateWithTime(startTime, staffWorkday.endTime);
   
-    // ❌ Check if staff has an off day
     const offDayDate = startTime.toISOString().split('T')[0];
     const offDays = await OffDay.findAll({
       where: {
@@ -202,11 +239,11 @@ const isActiveStaff = async (staffId: number, startTime: Date, endTime: Date): P
       const offEnd = buildDateWithTime(startTime, off.endTime);
   
       if (startTime < offEnd && endTime > offStart) {
-        return false; // Time overlaps with off period
+        return false;
       }
     }
   
-    // ❌ Check if staff already has a booking during the requested time
+
     const existingBooking = await Booking.findOne({
       where: {
         staffId,
@@ -216,7 +253,7 @@ const isActiveStaff = async (staffId: number, startTime: Date, endTime: Date): P
     });
   
     if (existingBooking) {
-      return false; // Already booked
+      return false;
     }
   
     return startTime >= startDateTime && endTime <= endDateTime;
@@ -230,11 +267,11 @@ const getAvailableStaffId = async (companyId: number, startTime: Date, endTime: 
     for (const staff of staffs) {
       const isActive = await isActiveStaff(staff.id, startTime, endTime);
       if (isActive) {
-        return staff.id; // Found one available staff
+        return staff.id;
       }
     }
   
-    return null; // No available staff found
+    return null;
   };
 
 
@@ -246,4 +283,5 @@ export {
     getStaffByEmail,
     deleteStaff,
     getAvailableStaffId,
+    updateStaffProfile
 }

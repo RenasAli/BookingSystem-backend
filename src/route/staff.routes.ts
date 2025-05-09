@@ -11,10 +11,16 @@ staffRouter.get('/', async (_req, res) => {
     StaffController.getAllStaffs(_req, res)
 });
 staffRouter.get('/:id', async (_req, res) => {
-    StaffController.getAllStaffById(_req, res)
+    StaffController.getStaffById(_req, res)
+});
+staffRouter.get('/get/profile', async (_req, res) => {
+    StaffController.getStaffById(_req, res)
 });
 staffRouter.put('/:id', async (_req, res) => {
     StaffController.updateStaff(_req, res)
+});
+staffRouter.put('/update/profile', async (_req, res) => {
+    StaffController.updateStaffProfile(_req, res)
 });
 staffRouter.delete('/:id', async (_req, res) => {
     StaffController.deleteStaff(_req, res)

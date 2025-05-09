@@ -32,10 +32,14 @@ const Login = async (_req: Request, res: Response) => {
         if(user.role === Role.CompanyStaff){
             const staff = await StaffService.getStaffByEmail(email);
             if(!staff){return}
+            res.cookie('staffId', staff.id, {
+                httpOnly: true,
+                maxAge: 3 * 60 * 60 * 1000, // 3 hours
+            });
             companyId = staff.companyId
         }
         if(companyId){
-            res.cookie('SessionId', companyId, {
+            res.cookie('sessionId', companyId, {
                 httpOnly: true,
                 maxAge: 3 * 60 * 60 * 1000, // 3 hours
             });
@@ -60,7 +64,11 @@ const logout = (_req: Request, res: Response)=> {
         httpOnly: true,
         expires: new Date(0)
     });
-    res.cookie('SessionId', '', {
+    res.cookie('sessionId', '', {
+        httpOnly: true,
+        expires: new Date(0)
+    });
+    res.cookie('staffId', '', {
         httpOnly: true,
         expires: new Date(0)
     });
