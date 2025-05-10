@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import * as StaffService from '../service/staff.service';
 import { CreateStaff } from '../dto/RequestDto/CreateStaff';
-import { UpdateProfile } from '../dto/RequestDto/updateProfile';
+import { UpdateProfile } from '../dto/RequestDto/UpdateProfile';
 
 const getAllStaffs = async (_req: Request, res: Response) => {
     try{

@@ -6,7 +6,7 @@ import { createCompanyUserAsStaff } from './user.service';
 import * as WorkdayService from './workday.service';
 import * as WeekdayService from "./weekday.service";
 import { Op } from 'sequelize';
-import { UpdateProfile } from '../dto/RequestDto/updateProfile';
+import { UpdateProfile } from '../dto/RequestDto/UpdateProfile';
 import * as UserService from "./user.service"
 
 
