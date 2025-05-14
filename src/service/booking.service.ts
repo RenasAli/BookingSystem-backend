@@ -179,6 +179,7 @@ const getBookingsTimeSlots = async (
             where: {
                 staffId: staff.id,
                 startTime: { [Op.gte]: workStart, [Op.lt]: workEnd },
+                status: { [Op.ne]: Status.cancelled }
             },
         });
 
