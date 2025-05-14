@@ -231,12 +231,12 @@ const isActiveStaff = async (staffId: number, startTime: Date, endTime: Date): P
     });
   
     for (const off of offDays) {
-      if (!off.startTime || !off.endTime) {
+      if (!off.startDate || !off.endDate) {
         return false; // Full-day off
       }
   
-      const offStart = buildDateWithTime(startTime, off.startTime);
-      const offEnd = buildDateWithTime(startTime, off.endTime);
+      const offStart = buildDateWithTime(startTime, off.startDate);
+      const offEnd = buildDateWithTime(startTime, off.endDate);
   
       if (startTime < offEnd && endTime > offStart) {
         return false;

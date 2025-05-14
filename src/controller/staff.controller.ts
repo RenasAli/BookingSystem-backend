@@ -57,10 +57,10 @@ const updateStaffProfile = async (_req: Request, res: Response) => {
         const dto: UpdateProfile = _req.body;
         const staff = await StaffService.updateStaffProfile(Number(staffId), Number(companyId), dto);
         return res.status(201).send(`${staff} is update successfully!`);
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: 'Failed to update staff' });
-  }
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Failed to update staff' });
+    }
 };
 
 const deleteStaff = async (_req: Request, res: Response) => {
