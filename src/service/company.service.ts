@@ -10,7 +10,7 @@ import cloudinary from '../util/cloudinary';
 import { UploadApiResponse } from 'cloudinary';
 import * as WeekdayService from "./weekday.service";
 import { getAllServicesByCompanyId } from './service.service';
-import { PublicCompanyResponse } from '../dto/ResponseDto/publicCompanyResponse';
+import { PublicCompanyResponse } from '../dto/ResponseDto/PublicCompanyResponse';
 import StaffWorkday from '../model/staffWorkday.model';
 
 
@@ -42,6 +42,7 @@ const toCompanyDto = (company: Company): CompanyResponse => ({
     closeTime: day.closeTime
   })),
 });
+
 const toPublicCompanyDto = (company: Company, services: Service[]): PublicCompanyResponse => ({
   id: company.id,
   name: company.name,
@@ -60,19 +61,18 @@ const toPublicCompanyDto = (company: Company, services: Service[]): PublicCompan
     weekdayId: day.weekdayId,
     isOpen: day.isOpen,
     openTime: day.openTime,
-    closeTime: day.closeTime
+    closeTime: day.closeTime,
   })),
-  services: services?.map((service) => ({
+  services: services.map((service) => ({
     id: service.id,
     name: service.name,
     durationMinutes: service.durationMinutes,
-  }))
+  })),
 });
-
 
 const getAllCompanies = async (): Promise<CompanyResponse[]> => {
   const companies = await Company.findAll({
-    include: [Address, User, {model: CompanyWorkday, include: [Weekday]}],
+    include: [Address, User, { model: CompanyWorkday, include: [Weekday] }],
   });
 
   return companies.map(toCompanyDto);
@@ -80,45 +80,35 @@ const getAllCompanies = async (): Promise<CompanyResponse[]> => {
 
 const getCompanyById = async (id: number): Promise<CompanyResponse | null> => {
   const company = await Company.findByPk(id, {
-    include: [Address, User, {model: CompanyWorkday, include: [Weekday]}],
+    include: [Address, User, { model: CompanyWorkday, include: [Weekday] }],
   });
-  return company ? toCompanyDto(company) : null; 
+
+  return company ? toCompanyDto(company) : null;
 };
 
 const getCompanyByURL = async (url: string): Promise<PublicCompanyResponse | null> => {
-  const company = await Company.findOne( {
-    where: {url: url},
-    include: [Address, {model: CompanyWorkday, include: [Weekday]}],
+  const company = await Company.findOne({
+    where: { url },
+    include: [Address, { model: CompanyWorkday, include: [Weekday] }],
   });
 
-  if(!company) {
-    return null;
-  };
-  const services = await getAllServicesByCompanyId(company.id)
+  if (!company) return null;
+
+  const services = await getAllServicesByCompanyId(company.id);
   return toPublicCompanyDto(company, services);
 };
 
 const getCompanyIdByOwnerId = async (ownerId: number): Promise<number | null> => {
-  const company = await Company.findOne({
-    where: {
-      userId: ownerId
-    },
-  });
-  if(!company){
-    return null
-  }
-
-  return company.id; 
+  const company = await Company.findOne({ where: { userId: ownerId } });
+  return company?.id || null;
 };
 
-const createCompany = async (dto: CreateCompanyAndAdmin): Promise<String> => {
+const createCompany = async (dto: CreateCompanyAndAdmin): Promise<string> => {
   const transaction = await sequelize.transaction();
 
   try {
-    //  Validate workdays
     WorkdayService.validateWorkdays(dto.workday);
 
-    // Upload logo to Cloudinary if file is provided
     let logoUrl: string | null = null;
     if (dto.logoFile) {
       const uploadResult: UploadApiResponse = await cloudinary.uploader.upload(dto.logoFile.path, {
@@ -128,18 +118,14 @@ const createCompany = async (dto: CreateCompanyAndAdmin): Promise<String> => {
       logoUrl = uploadResult.secure_url;
     }
 
-    // 1. Create user
     const userId = await createCompanyAdmin(dto, transaction);
 
-    // 2. Create address
     const address = await Address.create({
       street: dto.street,
       city: dto.city,
       zipCode: dto.zipCode,
     }, { transaction });
-    
 
-    // 3. Create company with relation
     const company = await Company.create({
       name: dto.companyName,
       cvr: dto.cvr,
@@ -148,45 +134,42 @@ const createCompany = async (dto: CreateCompanyAndAdmin): Promise<String> => {
       email: dto.companyEmail,
       logo: logoUrl,
       confirmationMethod: dto.confirmationMethod,
-      userId: userId,
+      userId,
       addressId: address.id,
     }, { transaction });
-    
+
     for (const day of dto.workday) {
       await CompanyWorkday.create({
         companyId: company.id,
-        weekdayId: day.weekdayId, 
+        weekdayId: day.weekdayId,
         isOpen: day.isOpen,
         openTime: day.openTime,
         closeTime: day.closeTime,
       }, { transaction });
     }
-    // 2. Create the owner as a staff
+
     const staff = await Staff.create({
       companyId: company.id,
-      userId : userId,
+      userId,
       name: dto.adminName,
       phone: dto.companyPhone,
-      email: dto.adminEmail
-    },{transaction})
+      email: dto.adminEmail,
+    }, { transaction });
 
-    for (let weekdayId = 1; weekdayId <= 7; weekdayId++) {    
+    for (let weekdayId = 1; weekdayId <= 7; weekdayId++) {
       await StaffWorkday.create({
-          companyId: company.id,
-          staffId: staff.id,
-          weekdayId,
-          isActive: false,
-          startTime: '00:00:00',
-          endTime:  '00:00:00',
+        companyId: company.id,
+        staffId: staff.id,
+        weekdayId,
+        isActive: false,
+        startTime: '00:00:00',
+        endTime: '00:00:00',
       }, { transaction });
     }
 
     await transaction.commit();
-
     return company.name;
-
   } catch (error) {
-    // 🔥 Rollback on failure
     await transaction.rollback();
     throw error;
   }
@@ -195,201 +178,159 @@ const createCompany = async (dto: CreateCompanyAndAdmin): Promise<String> => {
 const updateCompany = async (
   companyId: number,
   dto: UpdateCompanyAndAdmin
-  ): Promise<String | null> => {
-    const transaction = await sequelize.transaction();
-  
-    try {
-      //  Validate workdays
-      WorkdayService.validateWorkdays(dto.workday);
-
-      const company =  await Company.findByPk(companyId, {
-        include: [Address, User],
-      });
-  
-      if (!company || !company.user || !company.address) {
-        await transaction.rollback();
-        return null;
-      }
-  
-      // Update company
-      await company.update(
-        {
-          name: dto.companyName,
-          cvr: dto.cvr,
-          url: dto.url,
-          phone: dto.companyPhone,
-          email: dto.companyEmail,
-          logo: dto.logo,
-          confirmationMethod: dto.confirmationMethod,
-          },
-        { transaction }
-      );
-  
-      // Prepare user update payload
-      const userUpdates: any = {
-        email: dto.adminEmail,
-      };
-  
-      if (dto.password) {
-        const hashedPassword = await bcrypt.hash(dto.password, 10);
-        userUpdates.password = hashedPassword;
-      }
-  
-      await company.user.update(userUpdates, { transaction });
-  
-      // Update address
-      await company.address.update(
-        {
-          street: dto.street,
-          city: dto.city,
-          zipCode: dto.zipCode,
-        },
-        { transaction }
-      );
-          // Update Workdays
-    for (const day of dto.workday) {
-      await CompanyWorkday.update(
-        {
-          isOpen: day.isOpen,
-          openTime: day.openTime,
-          closeTime: day.closeTime,
-        },
-        {
-          where: {
-            companyId: company.id,
-            weekdayId: day.weekdayId,
-          },
-          transaction,
-        }
-      );
-    }
-  
-      await transaction.commit();
-  
-      return company.name;
-    } catch (error) {
-      await transaction.rollback();
-      throw error;
-    }
-};
-
-const updateCompanyLogo = async (
-  companyId: number,
-  logoFile: Express.Multer.File
-  ): Promise<String | null> => {
-    try {
-      const company =  await Company.findByPk(companyId);
-      if (!company) {return null;}
-
-      // Upload logo to Cloudinary if file is provided
-      if (logoFile) {
-        const publicId = `${company.name.replace(/\s+/g, '_')}_logo`
-        await cloudinary.uploader.destroy(publicId);
-        const uploadResult: UploadApiResponse = await cloudinary.uploader.upload(logoFile.path, {
-          folder: 'company_logos',
-          public_id: publicId,
-        });
-
-        await company.update({logo: uploadResult.secure_url});
-      };
-      
-      return company.logo? company.logo: "";
-    } catch (error) {
-      throw error;
-    }
-};
-
-const deleteCompany = async (companyId: number): Promise<void> => {
+): Promise<string | null> => {
   const transaction = await sequelize.transaction();
+
   try {
+    WorkdayService.validateWorkdays(dto.workday);
+
     const company = await Company.findByPk(companyId, {
       include: [Address, User],
     });
+
     if (!company || !company.user || !company.address) {
       await transaction.rollback();
-      return;
+      return null;
     }
 
-    await Booking.destroy({
-      where: { companyId },
-      transaction,
-    });
+    await company.update({
+      name: dto.companyName,
+      cvr: dto.cvr,
+      url: dto.url,
+      phone: dto.companyPhone,
+      email: dto.companyEmail,
+      logo: dto.logo,
+      confirmationMethod: dto.confirmationMethod,
+    }, { transaction });
 
-    const staffMembers = await Staff.findAll({
-      where: { companyId },
-      transaction,
-    });
-      
-    for (const staff of staffMembers) {
-      await StaffWorkDay.destroy({
+    const userUpdates: any = {
+      email: dto.adminEmail,
+    };
+
+    if (dto.password) {
+      userUpdates.password = await bcrypt.hash(dto.password, 10);
+    }
+
+    await company.user.update(userUpdates, { transaction });
+
+    await company.address.update({
+      street: dto.street,
+      city: dto.city,
+      zipCode: dto.zipCode,
+    }, { transaction });
+
+    for (const day of dto.workday) {
+      await CompanyWorkday.update({
+        isOpen: day.isOpen,
+        openTime: day.openTime,
+        closeTime: day.closeTime,
+      }, {
         where: {
-          staffId: staff.id,
-          companyId: companyId,
+          companyId: company.id,
+          weekdayId: day.weekdayId,
         },
         transaction,
       });
-      await User.destroy({
-        where: {id: staff.userId},
-        transaction
-      });
     }
-      
-    await Staff.destroy({
-      where: { companyId },
-      transaction,
-    });
-  
-    await Service.destroy({
-      where: { companyId },
-      transaction,
-    });
-  
-    await CompanyWorkday.destroy({
-      where: { companyId },
-      transaction,
-    });
-      
-    const publicId = `${company.name.replace(/\s+/g, '_')}_logo`
-    await cloudinary.uploader.destroy(publicId);
-  
-    await company.destroy({ transaction });
-    await company.user.destroy({ transaction });
-    await company.address.destroy({ transaction });
-  
+
     await transaction.commit();
-  }catch (error) {
+    return company.name;
+  } catch (error) {
     await transaction.rollback();
     throw error;
   }
 };
 
-const isCompanyOpen = async (companyId: number, startTime: Date, endTime: Date): Promise<boolean> => {
+const updateCompanyLogo = async (
+  companyId: number,
+  logoFile: Express.Multer.File
+): Promise<string | null> => {
+  try {
+    const company = await Company.findByPk(companyId);
+    if (!company) return null;
+
+    const publicId = `${company.name.replace(/\s+/g, '_')}_logo`;
+    await cloudinary.uploader.destroy(publicId);
+
+    const uploadResult: UploadApiResponse = await cloudinary.uploader.upload(logoFile.path, {
+      folder: 'company_logos',
+      public_id: publicId,
+    });
+
+    await company.update({ logo: uploadResult.secure_url });
+    return company.logo || '';
+  } catch (error) {
+    throw error;
+  }
+};
+
+const deleteCompany = async (companyId: number): Promise<void> => {
+  const transaction = await sequelize.transaction();
+
+  try {
+    const company = await Company.findByPk(companyId, {
+      include: [Address, User],
+    });
+
+    if (!company || !company.user || !company.address) {
+      await transaction.rollback();
+      return;
+    }
+
+    await Booking.destroy({ where: { companyId }, transaction });
+
+    const staffMembers = await Staff.findAll({ where: { companyId }, transaction });
+
+    for (const staff of staffMembers) {
+      await StaffWorkDay.destroy({ where: { staffId: staff.id, companyId }, transaction });
+      await User.destroy({ where: { id: staff.userId }, transaction });
+    }
+
+    await Staff.destroy({ where: { companyId }, transaction });
+    await Service.destroy({ where: { companyId }, transaction });
+    await CompanyWorkday.destroy({ where: { companyId }, transaction });
+
+    const publicId = `${company.name.replace(/\s+/g, '_')}_logo`;
+    await cloudinary.uploader.destroy(publicId);
+
+    await company.destroy({ transaction });
+    await company.user.destroy({ transaction });
+    await company.address.destroy({ transaction });
+
+    await transaction.commit();
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+};
+
+const isCompanyOpen = async (
+  companyId: number,
+  startTime: Date,
+  endTime: Date
+): Promise<boolean> => {
   const weekdayName = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(startTime);
   const weekdayId = await WeekdayService.getWeekdayIdByName(weekdayName);
-    
-  if (!weekdayId) {
-    console.log("Error: Failed to get weekday ID");
-    return false;
-  }
-    
-  const companyWorkday = await WorkdayService.getCompanyWorkday(companyId, weekdayId); 
-    
+
+  if (!weekdayId) return false;
+
+  const companyWorkday = await WorkdayService.getCompanyWorkday(companyId, weekdayId);
+
   if (!companyWorkday || !companyWorkday.isOpen || !companyWorkday.openTime || !companyWorkday.closeTime) {
     return false;
   }
-    
-  // Convert time string like "09:00" to Date using the same day as startTime
+
   const buildDateWithTime = (baseDate: Date, timeStr: string): Date => {
     const [hours, minutes] = timeStr.split(':').map(Number);
     const result = new Date(baseDate);
     result.setHours(hours + 2, minutes, 0, 0);
     return result;
   };
-    
+
   const openDateTime = buildDateWithTime(startTime, companyWorkday.openTime);
   const closeDateTime = buildDateWithTime(startTime, companyWorkday.closeTime);
-    
-    return startTime >= openDateTime && endTime <= closeDateTime;
+
+  return startTime >= openDateTime && endTime <= closeDateTime;
 };
 
 export {
