@@ -155,20 +155,23 @@ const getBookingsTimeSlots = async (
         
 
         const offDays = await OffDay.findAll({
-            where: { staffId: staff.id, date },
+            where: {
+                staffId: staff.id,
+                startDate: { [Op.lte]: date },
+                endDate: { [Op.gte]: date }
+            }
         });
 
         let offRanges: { start: Date; end: Date }[] = [];
         for (const off of offDays) {
-            if (!off.startTime || !off.endTime) {
+            if (!off.startDate || !off.endDate) {
               
-                // Full day off
                 offRanges = [{ start: workStart, end: workEnd }];
                 break;
             }
             offRanges.push({
-                start: buildDateWithTime(off.startTime),
-                end: buildDateWithTime(off.endTime),
+                start: buildDateWithTime(off.startDate),
+                end: buildDateWithTime(off.endDate),
             });
         }
 

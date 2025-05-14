@@ -142,9 +142,8 @@ CREATE TABLE IF NOT EXISTS `booking_system`.`staff_workday` (
 CREATE TABLE IF NOT EXISTS `booking_system`.`off_day` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `staff_id` BIGINT NOT NULL,
-  `date` DATE NOT NULL,
-  `start_time` TIME,
-  `end_time` TIME,
+  `start_date` DATETIME NOT NULL,
+  `end_date` DATETIME NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_off_day_staff_id`
     FOREIGN KEY (`staff_id`)

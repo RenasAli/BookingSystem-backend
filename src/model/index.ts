@@ -59,6 +59,10 @@ OffDay.belongsTo(Staff, { foreignKey: 'staffId' });
 Staff.hasMany(Booking, { foreignKey: 'staffId' });
 Booking.belongsTo(Staff, { foreignKey: 'staffId' });
 
+// // OffDay - Staff
+// OffDay.hasOne(Staff, { foreignKey: 'staffId' });
+// Staff.belongsTo(OffDay, { foreignKey: 'staffId' });
+
 // Service - Booking
 Service.hasMany(Booking, { foreignKey: 'serviceId' });
 Booking.belongsTo(Service, { foreignKey: 'serviceId' });
