@@ -1,7 +1,6 @@
 import {Router} from 'express';
 import * as BookingController from "../controller/booking.controller";
 
-
 const bookingRouter = Router();
 
 bookingRouter.post('/', async (_req, res) => {
@@ -19,6 +18,10 @@ bookingRouter.get('/available-times', async (_req, res) => {
 bookingRouter.get('/', async (_req, res) => {
     BookingController.getAllBookings(_req, res )
 })
+
+bookingRouter.post('/verify-booking', async (_req, res) => {
+    BookingController.verifyBookingOtp(_req, res);
+});
 
 bookingRouter.get('/:id', async (_req, res) => {
     BookingController.getBookingsById(_req, res )

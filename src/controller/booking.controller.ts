@@ -2,8 +2,11 @@ import { Request, Response } from 'express';
 import * as BookingService from "../service/booking.service";
 import * as PaymentService from "../service/payment.service";
 import * as CompanyService from "../service/company.service";
+import { sendOtp } from "../service/sms.service";
 import BookingRequest from '../dto/RequestDto/BookingRequest';
 import ConfirmationMethod from '../model/enum/ConfirmationMethod';
+import { verifyOtp } from '../service/sms.service';
+import { Status } from "../model/booking.model";
 
 import { CreateBooking } from '../dto/RequestDto/CreateBooking';
 
@@ -12,9 +15,17 @@ const createBooking = async (_req: Request, res: Response) => {
       const request: BookingRequest = _req.body;
       const company = await CompanyService.getCompanyById(request.companyId)
       const booking = await BookingService.createBooking(request);
+
       if(company?.confirmationMethod === ConfirmationMethod.Depositum){
         const paymentUrl = await PaymentService.createPaymentSession(booking, company);
         return res.status(201).send(paymentUrl);
+      } else if (company?.confirmationMethod === ConfirmationMethod.ConfirmationCode) {
+        await sendOtp(booking.customerPhone);
+        return res.status(201).json({
+          booking, otpSent: true,
+          companyId: booking.companyId,
+          bookingId: booking.id,
+        });
       } else {
         return res.status(201).send(booking);
       }
@@ -24,9 +35,26 @@ const createBooking = async (_req: Request, res: Response) => {
     }
 };
 
+export const verifyBookingOtp = async (req: Request, res: Response) => {
+  const { bookingId, companyId, phoneNumber, code } = req.body;
+
+  try {
+    const status = await verifyOtp(phoneNumber, code);
+
+    if (status === 'approved') {
+      await BookingService.updateBookingStatus(bookingId, companyId, Status.confirmed);
+      return res.status(200).json({ message: 'Booking confirmed!' });
+    } else {
+      return res.status(400).json({ message: 'Incorrect code' });
+    }
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 const createBookingByStaff = async (_req: Request, res: Response) => {
     try{
-        const companyId = _req.cookies?.[''];
+        const companyId = _req.cookies?.['sessionId'];
         const dto: CreateBooking = _req.body;
         const booking = await BookingService.createBookingByStaff(dto, companyId);
         return res.status(201).send(`${booking} is created successfully!`);

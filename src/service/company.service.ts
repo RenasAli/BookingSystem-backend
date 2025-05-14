@@ -10,7 +10,7 @@ import cloudinary from '../util/cloudinary';
 import { UploadApiResponse } from 'cloudinary';
 import * as WeekdayService from "./weekday.service";
 import { getAllServicesByCompanyId } from './service.service';
-import { PublicCompanyResponse } from '../dto/ResponseDto/PublicCompanyResponse';
+import { PublicCompanyResponse } from '../dto/ResponseDto/publicCompanyResponse';
 import StaffWorkday from '../model/staffWorkday.model';
 
 
@@ -49,6 +49,7 @@ const toPublicCompanyDto = (company: Company, services: Service[]): PublicCompan
   phone: company.phone,
   email: company.email,
   logo: company.logo,
+  confirmationMethod: company.confirmationMethod,
   address: {
     id: company.address.id,
     street: company.address.street,

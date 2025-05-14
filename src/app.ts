@@ -10,6 +10,8 @@ import cookieParser from 'cookie-parser';
 import bookingRouter from './route/booking.routes';
 import webhookouter from './route/webhooks.routes';
 import offDayRouter from './route/offDay.routes';
+import smsRouter from './route/sms.route';
+
 
 dotenv.config();
 
@@ -28,6 +30,7 @@ app.use('/api/staff', staffRouter);
 app.use('/api/service', serviceRouter);
 app.use('/api/booking', bookingRouter);
 app.use('/api/off-day', offDayRouter);
+app.use('/api/sms', smsRouter);
 
 // DB connect
 
