@@ -33,9 +33,9 @@ const createPaymentSession = async (booking: Booking, company: CompanyResponse)=
         });
     
         return session.url;
-      } catch (err) {
+    } catch (err) {
         throw new Error("Error create payment session: " + err)
-      }
+    }
 }
 
 export {

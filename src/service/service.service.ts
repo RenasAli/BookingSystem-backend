@@ -1,9 +1,8 @@
-import  sequelize from '../config/database';
+import sequelize from '../config/database';
 import { CreateService } from '../dto/RequestDto/CreateService';
 import { Service } from '../model';
 
 const createService = async (serviceRequest: CreateService, companyId: number): Promise<string> => {
-
     const transaction = await sequelize.transaction();
     try {
         const service = await Service.create({
@@ -17,11 +16,10 @@ const createService = async (serviceRequest: CreateService, companyId: number): 
         await transaction.commit();
         return service.name;
     } catch (error) {
-        // 🔥 Rollback on failure
         await transaction.rollback();
         throw error;
     }
-}
+};
 
 const getAllServicesByCompanyId = async (companyId: number): Promise<Service[]> => {
     return await Service.findAll({
