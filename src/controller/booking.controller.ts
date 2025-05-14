@@ -54,7 +54,7 @@ export const verifyBookingOtp = async (req: Request, res: Response) => {
 
 const createBookingByStaff = async (_req: Request, res: Response) => {
     try{
-        const companyId = _req.cookies?.[''];
+        const companyId = _req.cookies?.['sessionId'];
         const dto: CreateBooking = _req.body;
         const booking = await BookingService.createBookingByStaff(dto, companyId);
         return res.status(201).send(`${booking} is created successfully!`);
