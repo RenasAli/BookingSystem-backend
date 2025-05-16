@@ -17,6 +17,8 @@ const createCompanyAdmin = async (
   admin: CreateCompanyAndAdmin,
   transaction: Transaction
 ): Promise<number> => {
+  // Uncomment when in production
+  //validatePassword(admin.adminPassword);
   const hashedPassword = await bcrypt.hash(admin.adminPassword, 10);
 
   const user = await User.create(
@@ -36,6 +38,8 @@ const createCompanyUserAsStaff = async (
   staff: CreateStaff,
   transaction: Transaction
 ): Promise<number> => {
+  // Uncomment when in production
+  //validatePassword(staff.password);
   const hashedPassword = await bcrypt.hash(staff.password, 10);
 
   const user = await User.create(
@@ -49,6 +53,15 @@ const createCompanyUserAsStaff = async (
 
   return user.id;
 };
+
+function validatePassword(password: string): void {
+  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+  if (!regex.test(password)) {
+    throw new Error(
+      "Password must be at least 8 characters long and include uppercase, lowercase, and a number."
+    );
+  }
+}
 
 export {
   createCompanyAdmin,
