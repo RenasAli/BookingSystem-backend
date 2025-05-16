@@ -20,14 +20,14 @@ jobs:
           node-version: '18'
 
           
+      - name: Install dependencies
+        run: npm install
+
       - name: Make script executable
         run: chmod +x ./script/create-database.sh
 
       - name: Run setup-test-db.sh
         run: ./script/create-database.sh
-
-      - name: Install dependencies
-        run: npm install
 
       - name: Run tests
         run: npm run test
