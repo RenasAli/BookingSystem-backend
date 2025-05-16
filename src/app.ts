@@ -33,7 +33,13 @@ app.use('/api/off-day', offDayRouter);
 app.use('/api/sms', smsRouter);
 
 // DB connect
+const expectedDB = 'booking_system';
+const currentDB = process.env.DB_DATABASE;
 
+if (currentDB !== expectedDB) {
+  console.error(`❌ Test aborted: Unsafe DB name "${currentDB}". Expected "${expectedDB}".`);
+  process.exit(1);
+}
 sequelize.authenticate()
   .then(() => console.log('Database connected.'))
   .catch(err => console.error('DB connection failed:', err));
