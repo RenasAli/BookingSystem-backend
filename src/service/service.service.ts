@@ -1,6 +1,7 @@
 import sequelize from '../config/database';
 import { CreateService } from '../dto/RequestDto/CreateService';
-import { Service } from '../model';
+import { Booking, Service } from '../model';
+import { CancellationReason, Status } from '../model/booking.model';
 
 const createService = async (serviceRequest: CreateService, companyId: number): Promise<string> => {
     const transaction = await sequelize.transaction();
@@ -65,7 +66,27 @@ const deleteService = async (id: number, companyId: number): Promise<void> => {
     if (!service) {
         throw new Error('Service not found.');
     }
-    await service.destroy();
+
+    const transaction = await sequelize.transaction();
+    try {
+        await Booking.update(
+            {
+                status: Status.cancelled,
+                cancellationReason: CancellationReason.serviceDeleted,
+                serviceId: null
+            },
+            {
+                where: { serviceId: id, companyId: companyId },
+                transaction
+            }
+        );
+        
+        await service.destroy({ transaction });
+        await transaction.commit();
+    } catch (error) {
+        await transaction.rollback();
+        throw error;
+    }
 };
 
 export {

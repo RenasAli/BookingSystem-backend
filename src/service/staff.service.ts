@@ -8,6 +8,7 @@ import * as WeekdayService from "./weekday.service";
 import { Op } from 'sequelize';
 import { UpdateProfile } from '../dto/RequestDto/UpdateProfile';
 import * as UserService from "./user.service"
+import { CancellationReason, Status } from '../model/booking.model';
 
 const createStaff = async (staffRequest: CreateStaff, companyId: number): Promise<string> => {
     const transaction = await sequelize.transaction();
@@ -164,6 +165,18 @@ const deleteStaff = async (id: number, companyId: number): Promise<void> => {
             where: { id: staff.userId },
             transaction
         });
+
+        await Booking.update(
+            {
+                status: Status.cancelled,
+                cancellationReason: CancellationReason.staffDeleted,
+                staffId: null
+            },
+            {
+                where: { staffId: id, companyId: companyId },
+                transaction
+            }
+        );
 
         await staff.destroy({ transaction });
         await transaction.commit();
