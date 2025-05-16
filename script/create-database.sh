@@ -3,6 +3,7 @@
 container_name=booking_mysql
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 database_name=booking_system
+test_database_name=test_booking_system
 user=root
 password=123123
 
@@ -36,5 +37,5 @@ else
     echo "Error creating database."
     exit 1
 fi
-
+docker exec -i $container_name mysql -uroot -p$password -e "CREATE DATABASE ${test_database_name};"
 echo "Done!"

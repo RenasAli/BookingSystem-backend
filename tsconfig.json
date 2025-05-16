@@ -2,10 +2,10 @@
   "compilerOptions": {
     "target": "es2019",
     "module": "commonjs",
-    "rootDir": "src",
-    "outDir": "dist",
+    "rootDir": "./",
+    "outDir": "./dist",
     "esModuleInterop": true,
     "strict": true
   },
-  "include": ["src/**/*", "tests/**/*", "tests/unit/math.test.ts"]
+  "include": ["src/**/*", "tests/**/*"]
 }
