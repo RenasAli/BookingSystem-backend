@@ -20,10 +20,17 @@ export enum Status {
   cancelled = 'cancelled',
 }
 
+export enum CancellationReason {
+  customerCancelled = 'customer cancelled',
+  noShow = 'no show',
+  staffDeleted = 'staff deleted',
+  serviceDeleted = 'service deleted',
+}
+
 Booking.init({
   id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
   companyId: { field: 'company_id', type: DataTypes.INTEGER, allowNull: false },
-  staffId: { field: 'staff_id', type: DataTypes.INTEGER, allowNull: false },
+  staffId: { field: 'staff_id', type: DataTypes.INTEGER, allowNull: true },
   serviceId: { field: 'service_id', type: DataTypes.INTEGER, allowNull: true },
   customerName: { field: 'customer_name', type: DataTypes.STRING, allowNull: false },
   customerPhone: { field: 'customer_phone', type: DataTypes.STRING, allowNull: false },
@@ -32,7 +39,16 @@ Booking.init({
     allowNull: false},
   startTime: { field: 'start_time', type: DataTypes.DATE, allowNull: false },
   endTime: { field: 'end_time', type: DataTypes.DATE, allowNull: false },
-  createdAt: { field: 'created_at', type: DataTypes.DATE, allowNull: true }
+  createdAt: { field: 'created_at', type: DataTypes.DATE, allowNull: true },
+  cancellationReason: {
+    field: 'cancellation_reason',
+    type: DataTypes.ENUM(
+      CancellationReason.customerCancelled, 
+      CancellationReason.noShow, 
+      CancellationReason.staffDeleted, 
+      CancellationReason.serviceDeleted),
+    allowNull: true,
+  }
 }, {
   sequelize,
   modelName: 'booking',

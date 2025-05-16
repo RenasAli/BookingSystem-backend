@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS `booking_system`.`off_day` (
 CREATE TABLE IF NOT EXISTS `booking_system`.`booking` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `company_id` BIGINT NOT NULL,
-  `staff_id` BIGINT NOT NULL,
+  `staff_id` BIGINT ,
   `service_id` BIGINT ,
   `customer_name` VARCHAR(255) NOT NULL,
   `customer_phone` VARCHAR(30) NOT NULL,
@@ -164,6 +164,7 @@ CREATE TABLE IF NOT EXISTS `booking_system`.`booking` (
   `start_time` DATETIME NOT NULL,
   `end_time` DATETIME NOT NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `cancellation_reason` ENUM('customer cancelled', 'no show', 'staff deleted', 'service deleted') ,
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_booking_company_id`
     FOREIGN KEY (`company_id`)
