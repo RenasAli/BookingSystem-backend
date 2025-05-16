@@ -19,8 +19,20 @@ jobs:
         with:
           node-version: '18'
 
+          
+      - name: Make script executable
+        run: chmod +x ./script/create-database.sh
+
+      - name: Run setup-test-db.sh
+        run: ./script/create-database.sh
+
       - name: Install dependencies
         run: npm install
 
       - name: Run tests
         run: npm run test
+        env:
+          DB_HOST: localhost
+          DB_DATABASE: test_booking_system
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
