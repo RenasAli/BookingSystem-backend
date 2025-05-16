@@ -32,7 +32,6 @@ app.use('/api/booking', bookingRouter);
 app.use('/api/off-day', offDayRouter);
 app.use('/api/sms', smsRouter);
 
-// DB connect
 const expectedDB = 'booking_system';
 const currentDB = process.env.DB_DATABASE;
 
