@@ -9,6 +9,7 @@ import { verifyOtp } from '../service/sms.service';
 import { Status } from "../model/booking.model";
 
 import { CreateBooking } from '../dto/RequestDto/CreateBooking';
+import { AuthenticatedRequest } from '../util/authorize';
 
 const createBooking = async (_req: Request, res: Response) => {
     try {
@@ -52,9 +53,10 @@ export const verifyBookingOtp = async (req: Request, res: Response) => {
   }
 };
 
-const createBookingByStaff = async (_req: Request, res: Response) => {
+const createBookingByStaff = async (_req: AuthenticatedRequest, res: Response) => {
     try{
-        const companyId = _req.cookies?.['sessionId'];
+        const user = _req.user!;
+        const companyId = user.companyId!
         const dto: CreateBooking = _req.body;
         const booking = await BookingService.createBookingByStaff(dto, companyId);
         return res.status(201).send(`${booking} is created successfully!`);
@@ -77,9 +79,10 @@ const getBookingsTimeSlots = async (_req: Request, res: Response) => {
   }
 };
 
-const getAllBookings = async (_req: Request, res: Response) => {
+const getAllBookings = async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    const companyId = _req.cookies?.['sessionId'];
+    const user = _req.user!;
+    const companyId = user.companyId!
     const bookings = await BookingService.getAllBookingsByCompanyId(companyId);
     return res.status(200).json(bookings);
   } catch (error) {
@@ -88,9 +91,10 @@ const getAllBookings = async (_req: Request, res: Response) => {
   }
 }
 
-const getBookingsById = async (_req: Request, res: Response) => {
+const getBookingsById = async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    const companyId = _req.cookies?.['sessionId'];
+    const user = _req.user!;
+    const companyId = user.companyId!
     const booking = await BookingService.getBookingById(Number(_req.params.id), companyId);
     return res.status(200).json(booking);
   } catch (error) {
@@ -99,9 +103,10 @@ const getBookingsById = async (_req: Request, res: Response) => {
   }
 }
 
-const deleteBooking = async (_req: Request, res: Response) => {
+const deleteBooking = async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    const companyId = _req.cookies?.['sessionId'];
+    const user = _req.user!;
+    const companyId = user.companyId!
     const bookingId = Number(_req.params.id);
 
     await BookingService.deleteBooking(bookingId, companyId);
@@ -113,16 +118,17 @@ const deleteBooking = async (_req: Request, res: Response) => {
   }
 }
 
-const getBookingByDate = async (_req: Request, res: Response) => {
+const getBookingByDate = async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    const companyId = _req.cookies?.['sessionId'];
+    const user = _req.user!;
+    const companyId = user.companyId!
     const date = _req.params.date;
 
     if (!companyId || !date) {
       return res.status(400).json({ message: "Missing companyId or date" });
     }
 
-    const bookings = await BookingService.getBookingsByDate(parseInt(companyId), date);
+    const bookings = await BookingService.getBookingsByDate(Number(companyId), date);
     return res.status(200).json(bookings);
   } catch (error) {
     console.error(error);
@@ -130,9 +136,10 @@ const getBookingByDate = async (_req: Request, res: Response) => {
   }
 }
 
-const updateBooking = async (_req: Request, res: Response) => {
+const updateBooking = async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    const companyId = _req.cookies?.['sessionId'];
+    const user = _req.user!;
+    const companyId = user.companyId!
     const bookingId = Number(_req.params.id);
     const dto: CreateBooking = _req.body;
 

@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import * as CompanyService from '../service/company.service';
 import { CreateCompanyAndAdmin } from '../dto/RequestDto/CreateCompanyAndAdmin';
 import { UpdateCompanyAndAdmin } from '../dto/RequestDto/UpdateCompanyAndAdmin';
+import { AuthenticatedRequest } from '../util/authorize';
+import Role from '../model/enum/Role';
 
 const getAllCompanies = async (_req: Request, res: Response) => {
   try {
@@ -14,10 +16,21 @@ const getAllCompanies = async (_req: Request, res: Response) => {
 };
 
 
-const getCompanyById = async (_req: Request, res: Response) => {
+const getCompanyById = async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    const companyId = Number(_req.cookies?.['sessionId'] ?? _req.params.id);
-    const company = await CompanyService.getCompanyById(companyId);
+    const userRole = _req.userClaims?.role
+    let companyId; 
+    if (userRole === Role.CompanyAdmin) {
+      const user = _req.user!;
+      companyId = user.companyId!
+    } else if (userRole === Role.Admin) {
+      companyId = _req.params.id
+    }
+    const id = Number(companyId);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: 'Invalid company ID' });
+    }
+    const company = await CompanyService.getCompanyById(id);
     if (!company) {
       return res.status(404).json({ message: 'Company not found' });
     }
@@ -50,7 +63,6 @@ const createCompanyWithAdmin = async (_req: Request, res: Response) => {
       logoFile: _req.file,
     };
 
-    // Create the company and admin with address
     const company = await CompanyService.createCompany(dto);
 
     return res.status(201).send(`${company} is created successfully!`);
@@ -60,12 +72,26 @@ const createCompanyWithAdmin = async (_req: Request, res: Response) => {
   }
 };
 
-const updateCompany = async (_req: Request, res: Response) => {
-  const companyId = Number(_req.cookies?.['sessionId'] ?? _req.params.id);
-  const dto: UpdateCompanyAndAdmin = _req.body;
+const updateCompany = async (_req: AuthenticatedRequest, res: Response) => {
 
   try {
-    const updated = await CompanyService.updateCompany(companyId, dto);
+    const dto: UpdateCompanyAndAdmin = _req.body;
+    const userRole = _req.userClaims?.role
+    let companyId;
+    let isAdmin: boolean = false
+    if (userRole === Role.CompanyAdmin) {
+      const user = _req.user!;
+      companyId = user.companyId!
+      isAdmin = false
+    } else if (userRole === Role.Admin) {
+      companyId = _req.params.id
+      isAdmin = true
+    }
+    const id = Number(companyId);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: 'Invalid company ID' });
+    }
+    const updated = await CompanyService.updateCompany(isAdmin, id, dto);
 
     if (!updated) {
       res.status(404).json({ message: 'Company not found' });
@@ -101,7 +127,7 @@ const updateCompanyLogo = async (_req: Request, res: Response) => {
 
 const deleteCompany = async (_req: Request, res: Response) => {
   try {
-    const companyId = Number(_req.cookies?.['sessionId'] ?? _req.params.id);
+    const companyId = Number(_req.params.id);
     await CompanyService.deleteCompany(companyId);
     res.status(200).json({ message: `Company ${companyId} deleted successfully!` });
   } catch (error) {

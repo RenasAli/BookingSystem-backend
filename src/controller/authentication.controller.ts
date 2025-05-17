@@ -1,10 +1,7 @@
 import { Request, Response } from 'express';
 import * as AuthenticationService from '../service/authentication.service';
 import * as UserService from '../service/user.service';
-import * as CompanyService from '../service/company.service';
-import * as StaffService from '../service/staff.service';
 import User from '../model/user.model';
-import Role from '../model/enum/Role';
 
 const Login = async (_req: Request, res: Response) => {
     
@@ -21,30 +18,13 @@ const Login = async (_req: Request, res: Response) => {
             return res.status(401).json({ message: 'Invalid password.' });
         }
   
-        const token = AuthenticationService.createToken(user);
+        const token = await AuthenticationService.createToken(user);
   
         res.cookie('token', token, {
             httpOnly: true,
             maxAge: 3 * 60 * 60 * 1000, // 3 hours
         });
 
-        let companyId = await CompanyService.getCompanyIdByOwnerId(user.id);
-        if(user.role === Role.CompanyStaff){
-            const staff = await StaffService.getStaffByEmail(email);
-            if(!staff){return}
-            res.cookie('staffId', staff.id, {
-                httpOnly: true,
-                maxAge: 3 * 60 * 60 * 1000, // 3 hours
-            });
-            companyId = staff.companyId
-        }
-        if(companyId){
-            res.cookie('sessionId', companyId, {
-                httpOnly: true,
-                maxAge: 3 * 60 * 60 * 1000, // 3 hours
-            });
-        }
-  
         return res.status(200).json({
             message: 'You successfully logged in.',
             user: {
@@ -61,14 +41,6 @@ const Login = async (_req: Request, res: Response) => {
 
 const logout = (_req: Request, res: Response)=> {
     res.cookie('token', '', {
-        httpOnly: true,
-        expires: new Date(0)
-    });
-    res.cookie('sessionId', '', {
-        httpOnly: true,
-        expires: new Date(0)
-    });
-    res.cookie('staffId', '', {
         httpOnly: true,
         expires: new Date(0)
     });

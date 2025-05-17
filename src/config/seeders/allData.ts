@@ -114,6 +114,16 @@ async function seedAll() {
     );
 
     
+    const CompanyAdminAsStaff = await Staff.create(
+      {
+        companyId: company.id,
+        userId: userId,
+        name: dto.adminName,
+        email: dto.adminEmail,
+        phone: "23232323"
+      },
+      { transaction }
+    );
     const staff1 = await Staff.create(
       {
         companyId: company.id,
@@ -142,6 +152,14 @@ for (let weekdayId = 1; weekdayId <= 7; weekdayId++) {
   const isWeekend = weekdayId === 7; // Sunday off
 
   workdays.push(
+    {
+      companyId: CompanyAdminAsStaff.companyId,
+      staffId: CompanyAdminAsStaff.id,
+      weekdayId,
+      isActive: !isWeekend,
+      startTime: isWeekend ? '00:00:00' : '09:00:00',
+      endTime: isWeekend ? '00:00:00' : '17:00:00',
+    },
     {
       companyId: staff1.companyId,
       staffId: staff1.id,

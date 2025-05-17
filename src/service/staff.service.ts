@@ -144,6 +144,15 @@ const getStaffByEmail = async (email: string): Promise<Staff | null> => {
     }
     return staff;
 };
+const getStaffByUserId = async (userId: number): Promise<Staff | null> => {
+    const staff = await Staff.findOne({
+        where: { userId: userId }
+    });
+    if (!staff) {
+        return null;
+    }
+    return staff;
+};
 
 const deleteStaff = async (id: number, companyId: number): Promise<void> => {
     const transaction = await sequelize.transaction();
@@ -267,6 +276,7 @@ export {
     getAllStaffsByCompanyId,
     getStaffById,
     getStaffByEmail,
+    getStaffByUserId,
     deleteStaff,
     getAvailableStaffId,
     updateStaffProfile

@@ -176,6 +176,7 @@ const createCompany = async (dto: CreateCompanyAndAdmin): Promise<string> => {
 };
 
 const updateCompany = async (
+  isAdmin: boolean,
   companyId: number,
   dto: UpdateCompanyAndAdmin
 ): Promise<string | null> => {
@@ -196,11 +197,11 @@ const updateCompany = async (
     await company.update({
       name: dto.companyName,
       cvr: dto.cvr,
-      url: dto.url,
+      url: isAdmin ? dto.url : company.url,
       phone: dto.companyPhone,
       email: dto.companyEmail,
-      logo: dto.logo,
-      confirmationMethod: dto.confirmationMethod,
+      logo: isAdmin ? dto.logo : company.logo,
+      confirmationMethod: isAdmin ? dto.confirmationMethod : company.confirmationMethod,
     }, { transaction });
 
     const userUpdates: any = {
