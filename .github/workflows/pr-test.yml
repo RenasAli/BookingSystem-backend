@@ -46,7 +46,7 @@ jobs:
           DB_DATABASE: test_booking_system
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          
 
           
       - name: Run the app
@@ -56,6 +56,7 @@ jobs:
           DB_DATABASE: booking_system
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
 
           
       - name: Run api tests
