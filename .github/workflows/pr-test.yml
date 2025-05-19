@@ -57,6 +57,11 @@ jobs:
         run: npx ts-node src/app.ts
         env:
           DB_DATABASE: booking_system
+          DB_HOST: localhost
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
           
 
           
