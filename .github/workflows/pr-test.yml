@@ -30,7 +30,7 @@ jobs:
         run: |
           curl --location \
             --header "X-Api-Key: ${{ secrets.POSTMAN_API_KEY }}" \
-            "https://api.getpostman.com/collections/YOUR_COLLECTION_UID" \
+            "https://api.getpostman.com/collections/${{ secrets.COLLECTION_UID }}" \
             -o collection.json
 
       - name: Make script executable
