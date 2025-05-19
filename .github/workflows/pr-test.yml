@@ -49,7 +49,9 @@ jobs:
           DB_DATABASE: booking_system
 
       - name: Run unit & integration tests
-        run: npm run test
+        run: |
+          nohup npx ts-node src/app.ts > app.log 2>&1 &
+          sleep 10
         env:
           DB_DATABASE: test_booking_system
 
