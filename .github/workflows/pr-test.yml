@@ -53,11 +53,8 @@ jobs:
           DB_DATABASE: test_booking_system
 
           
-      - name: Create .env file
-        run: echo "STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}" >> .env
-          
       - name: Run the app
-        run: npm run dev
+        run: npx ts-node src/app.ts
         env:
           DB_DATABASE: booking_system
           
