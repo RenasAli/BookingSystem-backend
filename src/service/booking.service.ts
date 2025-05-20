@@ -78,7 +78,7 @@ const createBookingByStaff = async (bookingRequest: CreateBooking, companyId: nu
       serviceId: bookingRequest.serviceId,
       customerName: bookingRequest.customerName,
       customerPhone: bookingRequest.customerPhone,
-      status: Status.pending,
+      status: Status.confirmed,
       startTime,
       endTime,
     });
@@ -250,7 +250,6 @@ const updateBooking = async (
       serviceId: bookingRequest.serviceId,
       customerName: bookingRequest.customerName,
       customerPhone: bookingRequest.customerPhone,
-      status: Status.pending,
       startTime,
       endTime,
     });
