@@ -87,6 +87,7 @@ const updateCompany = async (_req: AuthenticatedRequest, res: Response) => {
       companyId = _req.params.id
       isAdmin = true
     }
+    
     const id = Number(companyId);
     if (isNaN(id)) {
       return res.status(400).json({ message: 'Invalid company ID' });
