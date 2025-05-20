@@ -59,15 +59,15 @@ const createCompanyWithAdmin = async (_req: Request, res: Response) => {
   try {
     const dto: CreateCompanyAndAdmin = {
       ..._req.body,
-      workday: JSON.parse(_req.body.workday),
       logoFile: _req.file,
     };
 
     const company = await CompanyService.createCompany(dto);
 
-    return res.status(201).send(`${company} is created successfully!`);
+    return res.status(201).json({ message: 'Company is created successfully!', data:  company});
   } catch (err) {
     console.error(err);
+    console.log(err)
     return res.status(500).json({ message: 'Failed to create company with admin and address' });
   }
 };

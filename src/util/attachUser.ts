@@ -14,7 +14,6 @@ export async function attachUser(req: AuthenticatedRequest, res: Response, next:
       res.status(401).json({ message: 'Unauthorized: Missing user ID in token' });
       return;
     }
-    console.log(userId)
     const user = await getStaffByUserId(userId);
     if (!user) {
       res.status(401).json({ message: 'Unauthorized: User not found' });
