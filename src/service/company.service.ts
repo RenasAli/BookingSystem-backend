@@ -284,6 +284,7 @@ const deleteCompany = async (companyId: number): Promise<void> => {
 
     for (const staff of staffMembers) {
       await StaffWorkDay.destroy({ where: { staffId: staff.id, companyId }, transaction });
+      if (staff.userId === company.user.id) continue;
       await User.destroy({ where: { id: staff.userId }, transaction });
     }
 
@@ -296,6 +297,7 @@ const deleteCompany = async (companyId: number): Promise<void> => {
 
     await company.destroy({ transaction });
     await company.user.destroy({ transaction });
+    await Staff.destroy({ where: { companyId, userId: company.user.id }, transaction });
     await company.address.destroy({ transaction });
 
     await transaction.commit();
