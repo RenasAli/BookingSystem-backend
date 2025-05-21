@@ -2,10 +2,10 @@ import * as CompanyService from '../../src/service/company.service';
 import { setupTestDB } from '../fixtures/setupTestDB';
 import { CompanyWorkday, Weekday } from '../../src/model';
 
-describe('Integration: CompanyService', () => {
-    const companyId = 1;
+setupTestDB();
 
-    setupTestDB();
+describe('Integration: isCompanyOpen', () => {
+    const companyId = 1;
 
     it('returns true when company is open during time range', async () => {
         const startTime = new Date('2025-07-07T09:00:00Z');
