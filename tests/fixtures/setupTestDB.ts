@@ -1,7 +1,9 @@
 import sequelize from '../../src/config/database';
 import dotenv from 'dotenv';
+import { seedTestData } from './seedTestData';
 
 dotenv.config();
+
 
 export const setupTestDB = () => {
   beforeAll(async () => {
@@ -10,18 +12,26 @@ export const setupTestDB = () => {
 
     if (currentDB !== expectedTestDB) {
       console.error(`❌ Test aborted: Unsafe DB name "${currentDB}". Expected "${expectedTestDB}".`);
-      process.exit(1); // Hard exit to avoid accidental data loss
+      process.exit(1);
     }
 
     try {
       await sequelize.authenticate();
-      console.log('Database connected.');
-      await sequelize.sync({ force: true });
+      await sequelize.sync();
     } catch (err) {
       console.error('DB setup failed:', err);
     }
   }, 30000);
 
+  beforeEach(async () => {
+    try {
+      await sequelize.sync({ force: true });
+      await seedTestData();
+    } catch (err) {
+      console.error('DB setup failed:', err);
+    }
+  });
+  
   afterAll(async () => {
     try {
       await sequelize.close();
@@ -30,3 +40,5 @@ export const setupTestDB = () => {
     }
   });
 };
+
+
