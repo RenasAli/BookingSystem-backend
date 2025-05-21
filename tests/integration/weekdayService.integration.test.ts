@@ -3,10 +3,9 @@ import { getWeekdayIdByName } from "../../src/service/weekday.service";
 import { setupTestDB } from "../fixtures/setupTestDB";
 
 
-
+setupTestDB();
 
 describe('Integration: getWeekdayIdByName', () => {
-    setupTestDB();
 
     it('should return correct ID when weekday exists', async () => {
         const monday = await Weekday.findOne({ where: { name: 'Monday' } });
