@@ -141,7 +141,7 @@ const updateBooking = async (_req: AuthenticatedRequest, res: Response) => {
     const user = _req.user!;
     const companyId = user.companyId!
     const bookingId = Number(_req.params.id);
-    const dto: CreateBooking = _req.body;
+    const dto: BookingRequest = _req.body;
 
     const booking = await BookingService.updateBooking(bookingId, companyId, { ...dto, companyId: Number(companyId) });
     return res.status(200).send(`${booking} is updated successfully!`);

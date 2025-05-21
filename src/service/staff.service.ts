@@ -223,13 +223,13 @@ const isActiveStaff = async (staffId: number, startTime: Date, endTime: Date): P
     const startDateTime = buildDateWithTime(startTime, staffWorkday.startTime);
     const endDateTime = buildDateWithTime(startTime, staffWorkday.endTime);
 
-    const offDayDate = startTime.toISOString().split('T')[0];
     const offDays = await OffDay.findAll({
         where: {
-            staffId,
-            date: offDayDate,
+          staffId: staffId,
+          startDate: { [Op.lte]: startTime },
+          endDate: { [Op.gte]: endTime },
         },
-    });
+      });
 
     for (const off of offDays) {
         if (!off.startDate || !off.endDate) {

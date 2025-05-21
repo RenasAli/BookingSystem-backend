@@ -27,7 +27,7 @@ async function seedAll() {
       adminName: 'Test Admin',
       adminPassword: '123123',
       logo: 'test-salon.jpg',
-      confirmationMethod: ConfirmationMethod.ConfirmationCode, 
+      confirmationMethod: ConfirmationMethod.Depositum, 
       street: 'Parkvej 22',
       city: 'Køge',
       zipCode: '4600',

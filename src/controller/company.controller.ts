@@ -75,6 +75,7 @@ const createCompanyWithAdmin = async (_req: Request, res: Response) => {
 const updateCompany = async (_req: AuthenticatedRequest, res: Response) => {
 
   try {
+    
     const dto: UpdateCompanyAndAdmin = _req.body;
     const userRole = _req.userClaims?.role
     let companyId;
