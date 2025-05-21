@@ -7,6 +7,8 @@ describe('Integration: CompanyService', () => {
 
     setupTestDB();
 
+    // isCompanyOpen() IntegrationTest start
+
     it('returns true when company is open during time range', async () => {
         const startTime = new Date('2025-07-07T09:00:00Z');
         const endTime = new Date('2025-07-07T09:30:00Z');
@@ -110,5 +112,7 @@ describe('Integration: CompanyService', () => {
         expect(result).toBe(expected);
         }
     );
+
+    // isCompanyOpen() IntegrationTest end
 
 });
