@@ -8,8 +8,6 @@ import { setupTestDB } from "../fixtures/setupTestDB";
 describe('Integration: getWeekdayIdByName', () => {
     setupTestDB();
 
-    // getWeekdayIdByName() IntegrationTest start
-
     it('should return correct ID when weekday exists', async () => {
         const monday = await Weekday.findOne({ where: { name: 'Monday' } });
         const result = await getWeekdayIdByName('Monday');
@@ -21,5 +19,4 @@ describe('Integration: getWeekdayIdByName', () => {
         expect(result).toBeNull();
     });
 
-    // getWeekdayIdByName() IntegrationTest end
 });

@@ -2,13 +2,11 @@ import { Weekday } from "../../src/model";
 import { getWeekdayIdByName } from "../../src/service/weekday.service";
 
 
-describe('Unit: weekdayService', () => {
+describe('Unit: getWeekdayIdByName', () => {
     const mockWeekdayFindOne = jest.spyOn(Weekday, 'findOne');
     afterEach(() => {
         jest.clearAllMocks();
     });
-
-    // getWeekdayIdByName() Unit start
 
     it('should return the id of the weekday if found', async () => {
         mockWeekdayFindOne.mockResolvedValue(
@@ -35,5 +33,4 @@ describe('Unit: weekdayService', () => {
         });
     });
 
-    // getWeekdayIdByName() Unit end
 });
