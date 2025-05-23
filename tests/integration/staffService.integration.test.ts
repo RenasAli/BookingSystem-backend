@@ -1,5 +1,3 @@
-// tests/integration/staffService.integration.test.ts
-
 import { isActiveStaff } from '../../src/service/staff.service';
 import { StaffWorkDay, OffDay, Booking } from '../../src/model';
 import { setupTestDB } from '../fixtures/setupTestDB';

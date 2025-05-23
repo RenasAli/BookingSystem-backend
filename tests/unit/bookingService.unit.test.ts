@@ -1,9 +1,11 @@
 import * as BookingService from '../../src/service/booking.service'
 import * as StaffService from '../../src/service/staff.service';
 import * as WorkdayService from '../../src/service/workday.service';
+import * as CompanyService from '../../src/service/company.service';
 import OffDay from '../../src/model/offDay.model';
 import Booking, { Status } from '../../src/model/booking.model';
 import { Staff, StaffWorkDay } from '../../src/model';
+import BookingRequest from '../../src/dto/RequestDto/BookingRequest';
 
 
 describe('Unit: getBookingsTimeSlots', () => {
@@ -116,3 +118,79 @@ describe('Unit: getBookingsTimeSlots', () => {
         expect(result.every(slot => slot.isAvailable)).toBe(true);
     });
 });
+
+
+
+describe('createBooking', () => {
+  const mockBookingCreate = jest.spyOn(Booking, 'create');
+  const mockIsCompanyOpen = jest.spyOn(CompanyService, 'isCompanyOpen');
+  const mockGetAvailableStaffId = jest.spyOn(StaffService, 'getAvailableStaffId');
+
+  const bookingRequest: BookingRequest = {
+    companyId: 1,
+    serviceId: 2,
+    customerName: 'John Doe',
+    customerPhone: '12345678',
+    startTime: new Date('2025-06-01T10:00:00Z'),
+    endTime: new Date('2025-06-01T10:30:00Z'),
+  };
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should create a booking successfully', async () => {
+    mockIsCompanyOpen.mockResolvedValue(true);
+    mockGetAvailableStaffId.mockResolvedValue(101);
+    const mockBooking = { id: 1, ...bookingRequest, staffId: 101, status: Status.pending };
+    mockBookingCreate.mockResolvedValue(mockBooking as any);
+
+    const result = await BookingService.createBooking(bookingRequest);
+
+    expect(mockIsCompanyOpen).toHaveBeenCalledWith(1, new Date(bookingRequest.startTime), new Date(bookingRequest.endTime));
+    expect(mockGetAvailableStaffId).toHaveBeenCalledWith(1, new Date(bookingRequest.startTime), new Date(bookingRequest.endTime));
+    expect(mockBookingCreate).toHaveBeenCalledWith(expect.objectContaining({
+      companyId: 1,
+      staffId: 101,
+      serviceId: 2,
+      customerName: 'John Doe',
+      customerPhone: '12345678',
+      status: Status.pending,
+      startTime: new Date(bookingRequest.startTime),
+      endTime: new Date(bookingRequest.endTime),
+    }));
+    expect(result).toEqual(mockBooking);
+  });
+
+  it('should throw error if company is closed', async () => {
+    mockIsCompanyOpen.mockResolvedValue(false);
+
+    await expect(BookingService.createBooking(bookingRequest)).rejects.toThrow("Error creating booking: The company is closed at this time");
+    expect(mockIsCompanyOpen).toHaveBeenCalled();
+    expect(mockGetAvailableStaffId).not.toHaveBeenCalled();
+    expect(mockBookingCreate).not.toHaveBeenCalled();
+  });
+
+  it('should throw error if no staff is available', async () => {
+    mockIsCompanyOpen.mockResolvedValue(true);
+    mockGetAvailableStaffId.mockResolvedValue(null);
+
+    await expect(BookingService.createBooking(bookingRequest))
+    .rejects.toThrow("Error creating booking: No staff available at this time");
+    expect(mockIsCompanyOpen).toHaveBeenCalled();
+    expect(mockGetAvailableStaffId).toHaveBeenCalled();
+    expect(mockBookingCreate).not.toHaveBeenCalled();
+  });
+
+  it('should throw error if Booking.create fails', async () => {
+    mockIsCompanyOpen.mockResolvedValue(true);
+    mockGetAvailableStaffId.mockResolvedValue(101);
+    mockBookingCreate.mockRejectedValue(new Error('DB error'));
+
+    await expect(BookingService.createBooking(bookingRequest)).rejects.toThrow("Error creating booking: DB error");
+    expect(mockIsCompanyOpen).toHaveBeenCalled();
+    expect(mockGetAvailableStaffId).toHaveBeenCalled();
+    expect(mockBookingCreate).toHaveBeenCalled();
+  });
+});
+
