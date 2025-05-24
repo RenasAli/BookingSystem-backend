@@ -18,6 +18,10 @@ describe('Unit: getBookingsTimeSlots', () => {
 
     const mockDate = '2025-07-07';
 
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
     it('should return empty array if no staff is available', async () => {
         mockGetAllStaffsByCompanyId.mockResolvedValue([]);
         
@@ -132,6 +136,10 @@ describe('Unit: createBooking', () => {
     startTime: new Date('2025-06-01T10:00:00Z'),
     endTime: new Date('2025-06-01T10:30:00Z'),
   };
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
   it('should create a booking successfully', async () => {
     mockIsCompanyOpen.mockResolvedValue(true);

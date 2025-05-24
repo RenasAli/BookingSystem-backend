@@ -16,14 +16,18 @@ export const setupDBForUnitTest = () => {
 
     try {
       await sequelize.authenticate();
-      await sequelize.sync({ force: true });
+      await sequelize.sync();
     } catch (err) {
       console.error('DB setup failed:', err);
     }
-  }, 30000);
+  });
 
-  beforeEach(() => {
-    jest.clearAllMocks();
+  afterAll(async () => {
+    try {
+      await sequelize.close();
+    } catch (err) {
+      console.error('DB teardown failed:', err);
+    }
   });
 
 }

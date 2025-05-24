@@ -7,7 +7,10 @@ setupDBForUnitTest();
 describe('Unit: getWeekdayIdByName', () => {
     const mockWeekdayFindOne = jest.spyOn(Weekday, 'findOne');
 
-
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+    
     it('should return the id of the weekday if found', async () => {
         mockWeekdayFindOne.mockResolvedValue(
             Weekday.build({

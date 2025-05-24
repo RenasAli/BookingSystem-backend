@@ -10,7 +10,10 @@ describe('Unit: isCompanyOpen', () => {
   const mockGetWeekdayIdByName = jest.spyOn(WeekdayService, 'getWeekdayIdByName');
   const mockGetCompanyWorkday = jest.spyOn(WorkdayService, 'getCompanyWorkday');
 
-
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+  
   it('should return true if company is open during the time range', async () => {
     const startTime = new Date('2025-07-07T08:30:00Z');
     const endTime = new Date('2025-07-07T09:30:00Z');
