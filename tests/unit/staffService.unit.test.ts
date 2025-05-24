@@ -2,7 +2,9 @@ import { Booking, OffDay, StaffWorkDay } from '../../src/model';
 import * as StaffService from '../../src/service/staff.service';
 import * as WeekdayService from '../../src/service/weekday.service';
 import * as WorkdayService from '../../src/service/workday.service';
+import { setupDBForUnitTest } from '../fixtures/setupTestDB';
 
+setupDBForUnitTest();
 
 describe('Unit: isActiveStaff', () => {
 
@@ -16,9 +18,6 @@ describe('Unit: isActiveStaff', () => {
     const startTime = new Date('2025-07-07T09:30:00Z');
     const endTime = new Date('2025-07-07T10:30:00Z');
 
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
 
     it('should return false if startTime or endTime is invalid', async () => {
         const invalidDate = new Date('invalid');

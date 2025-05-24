@@ -6,7 +6,9 @@ import OffDay from '../../src/model/offDay.model';
 import Booking, { Status } from '../../src/model/booking.model';
 import { Staff, StaffWorkDay } from '../../src/model';
 import BookingRequest from '../../src/dto/RequestDto/BookingRequest';
+import { setupDBForUnitTest } from '../fixtures/setupTestDB';
 
+setupDBForUnitTest();
 
 describe('Unit: getBookingsTimeSlots', () => {
     const mockGetAllStaffsByCompanyId = jest.spyOn(StaffService, 'getAllStaffsByCompanyId');
@@ -15,10 +17,6 @@ describe('Unit: getBookingsTimeSlots', () => {
     const mockFindAllBooking = jest.spyOn(Booking, 'findAll');
 
     const mockDate = '2025-07-07';
-
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
 
     it('should return empty array if no staff is available', async () => {
         mockGetAllStaffsByCompanyId.mockResolvedValue([]);
@@ -134,10 +132,6 @@ describe('Unit: createBooking', () => {
     startTime: new Date('2025-06-01T10:00:00Z'),
     endTime: new Date('2025-06-01T10:30:00Z'),
   };
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
 
   it('should create a booking successfully', async () => {
     mockIsCompanyOpen.mockResolvedValue(true);

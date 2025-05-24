@@ -1,12 +1,12 @@
 import { Weekday } from "../../src/model";
 import { getWeekdayIdByName } from "../../src/service/weekday.service";
+import { setupDBForUnitTest } from "../fixtures/setupTestDB";
 
+setupDBForUnitTest();
 
 describe('Unit: getWeekdayIdByName', () => {
     const mockWeekdayFindOne = jest.spyOn(Weekday, 'findOne');
-    afterEach(() => {
-        jest.clearAllMocks();
-    });
+
 
     it('should return the id of the weekday if found', async () => {
         mockWeekdayFindOne.mockResolvedValue(

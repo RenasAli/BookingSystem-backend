@@ -1,6 +1,8 @@
 import * as OffDayService from '../../src/service/offDay.service';
 import { OffDay } from '../../src/model';
+import { setupDBForUnitTest } from '../fixtures/setupTestDB';
 
+setupDBForUnitTest();
 
 describe('Unit: getOffDayById', () => {
     const mockFindOffDayByPk = jest.spyOn(OffDay, 'findByPk');

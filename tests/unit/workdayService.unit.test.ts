@@ -1,6 +1,9 @@
 import { StaffWorkDay } from '../../src/model';
 import CompanyWorkDay from '../../src/model/companyWorkday.model';
 import * as WorkdayService from '../../src/service/workday.service';
+import { setupDBForUnitTest } from '../fixtures/setupTestDB';
+
+setupDBForUnitTest();
 
 describe('Unit: validateWorkdays', () => {
 
