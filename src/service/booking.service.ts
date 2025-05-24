@@ -127,10 +127,8 @@ const getBookingsTimeSlots = async (
 
       let offRanges: { start: Date; end: Date }[] = [];
       for (const off of offDays) {
-        if (!off.startDate || !off.endDate) {
-          offRanges = [{ start: workStart, end: workEnd }];
-          break;
-        }
+        if (!off.startDate || !off.endDate) continue;
+
         offRanges.push({
           start: buildDateWithTime(off.startDate),
           end: buildDateWithTime(off.endDate),
@@ -153,8 +151,8 @@ const getBookingsTimeSlots = async (
         const slotStart = new Date(cursor);
         const slotEnd = new Date(cursor.getTime() + serviceDurationMinutes * 60000);
 
-        const overlapsSlotStart = new Date(cursor.getTime() + 120 * 60000);
-        const overlapsSlotEnd = new Date(cursor.getTime() + (serviceDurationMinutes + 120) * 60000);
+        const overlapsSlotStart = new Date(cursor.getTime());
+        const overlapsSlotEnd = new Date(cursor.getTime() + serviceDurationMinutes * 60000);
 
         const overlapsOff = offRanges.some(off => overlapsSlotStart < off.end && overlapsSlotEnd > off.start);
         const overlapsBooking = bookings.some(b => overlapsSlotStart < b.endTime && overlapsSlotEnd > b.startTime);

@@ -223,25 +223,16 @@ const isActiveStaff = async (staffId: number, startTime: Date, endTime: Date): P
     const startDateTime = buildDateWithTime(startTime, staffWorkday.startTime);
     const endDateTime = buildDateWithTime(startTime, staffWorkday.endTime);
 
-    const offDays = await OffDay.findAll({
+    const totalOffDay = await OffDay.count({
         where: {
-          staffId: staffId,
-          startDate: { [Op.lte]: startTime },
-          endDate: { [Op.gte]: endTime },
+            staffId,
+            startDate: { [Op.lte]: startTime },
+            endDate: { [Op.gte]: endTime },
         },
-      });
+    })
 
-    for (const off of offDays) {
-        if (!off.startDate || !off.endDate) {
-            return false;
-        }
-
-        const offStart = buildDateWithTime(startTime, off.startDate);
-        const offEnd = buildDateWithTime(startTime, off.endDate);
-
-        if (startTime < offEnd && endTime > offStart) {
-            return false;
-        }
+    if (totalOffDay > 0) {
+    return false;
     }
 
     const existingBooking = await Booking.findOne({
@@ -279,5 +270,6 @@ export {
     getStaffByUserId,
     deleteStaff,
     getAvailableStaffId,
-    updateStaffProfile
+    updateStaffProfile,
+    isActiveStaff
 };

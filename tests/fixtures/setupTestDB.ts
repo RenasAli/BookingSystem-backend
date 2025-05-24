@@ -4,6 +4,33 @@ import { seedTestData } from './seedTestData';
 
 dotenv.config();
 
+export const setupDBForUnitTest = () => {
+  beforeAll(async () => {
+    const expectedTestDB = 'test_booking_system';
+    const currentDB = process.env.DB_DATABASE;
+
+    if (currentDB !== expectedTestDB) {
+      console.error(`❌ Test aborted: Unsafe DB name "${currentDB}". Expected "${expectedTestDB}".`);
+      process.exit(1);
+    }
+
+    try {
+      await sequelize.authenticate();
+      await sequelize.sync();
+    } catch (err) {
+      console.error('DB setup failed:', err);
+    }
+  });
+
+  afterAll(async () => {
+    try {
+      await sequelize.close();
+    } catch (err) {
+      console.error('DB teardown failed:', err);
+    }
+  });
+
+}
 
 export const setupTestDB = () => {
   beforeAll(async () => {
