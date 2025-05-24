@@ -121,7 +121,7 @@ describe('Unit: getBookingsTimeSlots', () => {
 
 
 
-describe('createBooking', () => {
+describe('Unit: createBooking', () => {
   const mockBookingCreate = jest.spyOn(Booking, 'create');
   const mockIsCompanyOpen = jest.spyOn(CompanyService, 'isCompanyOpen');
   const mockGetAvailableStaffId = jest.spyOn(StaffService, 'getAvailableStaffId');
