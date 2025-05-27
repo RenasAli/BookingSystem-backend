@@ -5,7 +5,7 @@
   "main": "app.ts",
   "scripts": {
     "dev": "nodemon src/app.ts",
-    "test": "jest --runInBand",
+    "test": "jest --runInBand --detectOpenHandles" ,
     "test:watch": "jest --watch",
     "test:unit": "jest tests/unit",
     "test:integration": "jest --runInBand tests/integration",

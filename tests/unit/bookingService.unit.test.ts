@@ -7,6 +7,7 @@ import Booking, { Status } from '../../src/model/booking.model';
 import { Staff, StaffWorkDay } from '../../src/model';
 import BookingRequest from '../../src/dto/RequestDto/BookingRequest';
 import { setupDBForUnitTest } from '../fixtures/setupTestDB';
+import dayjs from '../../src/util/dayjs';
 
 setupDBForUnitTest();
 
@@ -95,15 +96,15 @@ describe('Unit: getBookingsTimeSlots', () => {
         }));
         mockFindAllOffDay.mockResolvedValue([]);
         mockFindAllBooking.mockResolvedValue([Booking.build({
-            startTime: new Date(`${mockDate}T09:00:00`),
-            endTime: new Date(`${mockDate}T09:30:00`),
+            startTime: dayjs.utc(`${mockDate}T09:00:00`),
+            endTime: dayjs.utc(`${mockDate}T09:30:00`),
             status: Status.confirmed
         })
         ]);
 
         const result = await BookingService.getBookingsTimeSlots(1, mockDate);
         expect(result.some(slot => !slot.isAvailable)).toBe(true); // mindst én utilgængelig
-        expect(result.find(slot => slot.startTime === '09.00')?.isAvailable).toBe(false);
+        expect(result.find(slot => slot.startTime === '09:00')?.isAvailable).toBe(false);
     });
 
     it('should ignore cancelled bookings', async () => {
@@ -133,8 +134,8 @@ describe('Unit: createBooking', () => {
     serviceId: 2,
     customerName: 'John Doe',
     customerPhone: '12345678',
-    startTime: new Date('2025-06-01T10:00:00Z'),
-    endTime: new Date('2025-06-01T10:30:00Z'),
+    startTime: '2025-06-01T10:00:00Z',
+    endTime: '2025-06-01T10:30:00Z',
   };
 
   afterEach(() => {
@@ -148,7 +149,6 @@ describe('Unit: createBooking', () => {
     mockBookingCreate.mockResolvedValue(mockBooking as any);
 
     const result = await BookingService.createBooking(bookingRequest);
-
     expect(mockIsCompanyOpen).toHaveBeenCalledWith(1, new Date(bookingRequest.startTime), new Date(bookingRequest.endTime));
     expect(mockGetAvailableStaffId).toHaveBeenCalledWith(1, new Date(bookingRequest.startTime), new Date(bookingRequest.endTime));
     expect(mockBookingCreate).toHaveBeenCalledWith(expect.objectContaining({
