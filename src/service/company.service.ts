@@ -4,7 +4,7 @@ import { CreateCompanyAndAdmin } from "../dto/RequestDto/CreateCompanyAndAdmin";
 import { Address, Company, CompanyWorkday, User, Weekday, Booking, Service, Staff, StaffWorkDay } from "../model";
 import { createCompanyAdmin } from "./user.service";
 import { UpdateCompanyAndAdmin } from '../dto/RequestDto/UpdateCompanyAndAdmin';
-import bcrypt from 'bcrypt';
+import { hashPassword } from '../util/HashPassword';
 import * as WorkdayService from './workday.service';
 import cloudinary from '../util/cloudinary'; 
 import { UploadApiResponse } from 'cloudinary';
@@ -209,7 +209,7 @@ const updateCompany = async (
     };
 
     if (dto.password) {
-      userUpdates.password = await bcrypt.hash(dto.password, 10);
+      userUpdates.password = await hashPassword(dto.password);
     }
 
     await company.user.update(userUpdates, { transaction });
