@@ -1,11 +1,10 @@
-import bcrypt from 'bcrypt';
+import { comparePassword } from '../util/HashPassword';
 import jwt from 'jsonwebtoken';
 import { User } from '../model';
 
 const checkPassword = async (password: string, hashedPassword: string): Promise<boolean> => {
-    return await bcrypt.compare(password, hashedPassword);
+    return await comparePassword(password, hashedPassword);
 }
-
 
 const createToken = async (user: User): Promise<string | null> => {
     try {
