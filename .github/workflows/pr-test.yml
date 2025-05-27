@@ -49,7 +49,7 @@ jobs:
           DB_DATABASE: booking_system
 
       - name: Run unit & integration tests
-        run: npx jest --runInBand
+        run: npm run test
         env:
           DB_DATABASE: test_booking_system
 
