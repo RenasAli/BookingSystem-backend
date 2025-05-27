@@ -1,7 +1,5 @@
-export const parseLocalISOString = async (isoString: string) => {
-  const [datePart, timePart] = isoString.split('T');
-  const [year, month, day] = datePart.split('-').map(Number);
-  const [hours, minutes] = timePart.split(':').map(Number);
+import dayjs from "./dayjs";
 
-  return new Date(year, month - 1, day, hours+2, minutes);
+export const parseLocalISOString = async (isoString: string): Promise<Date> => {
+  return dayjs.utc(isoString, 'Europe/Copenhagen').toDate();
 }
