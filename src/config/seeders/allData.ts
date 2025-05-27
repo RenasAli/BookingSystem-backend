@@ -3,7 +3,7 @@ import { Company, Address, Staff, Service, Booking, CompanyWorkday, User } from 
 import { createCompanyAdmin } from "../../service/user.service";
 import ConfirmationMethod from "../../model/enum/ConfirmationMethod";
 import { Weekday } from '../../model';
-import bcrypt from 'bcrypt';
+import { hashPassword } from '../../util/HashPassword';
 import Role from '../../model/enum/Role';
 import StaffWorkday from '../../model/staffWorkday.model';
 
@@ -14,7 +14,7 @@ async function seedAll() {
     await sequelize.authenticate();
     console.log('Database connected.');
 
-    const hashedPassword = await bcrypt.hash('123123', 10);
+    const hashedPassword = await hashPassword('123123');
 
     // Dummy data
     const dto = {

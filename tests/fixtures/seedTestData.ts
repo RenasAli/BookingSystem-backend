@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import { hashPassword } from '../../src/util/HashPassword';
 import sequelize from '../../src/config/database'
 import ConfirmationMethod from '../../src/model/enum/ConfirmationMethod';
 import { Address, Booking, Company, CompanyWorkday, Service, Staff, User, Weekday } from '../../src/model';
@@ -11,7 +11,7 @@ export const seedTestData = async ()=> {
 
     try {
 
-      const hashedPassword = await bcrypt.hash('123123', 10);
+      const hashedPassword = await hashPassword('123123');
 
       const dto = {
         companyName: 'Test Salon',

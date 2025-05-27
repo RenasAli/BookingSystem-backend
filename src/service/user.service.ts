@@ -3,8 +3,8 @@ import { CreateCompanyAndAdmin } from "../dto/RequestDto/CreateCompanyAndAdmin";
 import { CreateStaff } from "../dto/RequestDto/CreateStaff";
 import { User } from "../model";
 import Role from "../model/enum/Role";
-import bcrypt from "bcrypt";
-import validatePassword from "../util/validatePassword";
+
+import { hashPassword } from "../util/HashPassword";
 
 
 const getUserById = async (id: number): Promise<User | null> => {
@@ -20,7 +20,7 @@ const createCompanyAdmin = async (
 ): Promise<number> => {
   // Uncomment when in production
   //validatePassword(admin.adminPassword);
-  const hashedPassword = await bcrypt.hash(admin.adminPassword, 10);
+  const hashedPassword = await hashPassword(admin.adminPassword);
 
   const user = await User.create(
     {
@@ -41,7 +41,7 @@ const createCompanyUserAsStaff = async (
 ): Promise<number> => {
   // Uncomment when in production
   //validatePassword(staff.password);
-  const hashedPassword = await bcrypt.hash(staff.password, 10);
+  const hashedPassword = await hashPassword(staff.password);
 
   const user = await User.create(
     {
