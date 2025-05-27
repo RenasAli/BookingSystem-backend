@@ -1,6 +1,7 @@
 import * as BookingService from '../../src/service/booking.service'
 import * as StaffService from '../../src/service/staff.service';
 import * as WorkdayService from '../../src/service/workday.service';
+import * as WeekdayService from '../../src/service/weekday.service';
 import * as CompanyService from '../../src/service/company.service';
 import OffDay from '../../src/model/offDay.model';
 import Booking, { Status } from '../../src/model/booking.model';
@@ -14,6 +15,7 @@ setupDBForUnitTest();
 describe('Unit: getBookingsTimeSlots', () => {
     const mockGetAllStaffsByCompanyId = jest.spyOn(StaffService, 'getAllStaffsByCompanyId');
     const mockGetStaffWorkday = jest.spyOn(WorkdayService, 'getStaffWorkday');
+    const mockGetWeekdayIdByName = jest.spyOn(WeekdayService, 'getWeekdayIdByName');
     const mockFindAllOffDay = jest.spyOn(OffDay, 'findAll');
     const mockFindAllBooking = jest.spyOn(Booking, 'findAll');
 
@@ -25,13 +27,15 @@ describe('Unit: getBookingsTimeSlots', () => {
 
     it('should return empty array if no staff is available', async () => {
         mockGetAllStaffsByCompanyId.mockResolvedValue([]);
+        mockGetWeekdayIdByName.mockResolvedValue(1);
         
-        const result = await BookingService.getBookingsTimeSlots(1, mockDate);
+      const result = await BookingService.getBookingsTimeSlots(1, mockDate);
         expect(result).toEqual([]);
     });
 
     it('should skip staff without active workday', async () => {
         mockGetAllStaffsByCompanyId.mockResolvedValue([Staff.build({ id: 1 })]);
+        mockGetWeekdayIdByName.mockResolvedValue(1);
         mockGetStaffWorkday.mockResolvedValue(StaffWorkDay.build({
         isActive: false,
         startTime: '09:00',
@@ -44,6 +48,7 @@ describe('Unit: getBookingsTimeSlots', () => {
 
     it('should skip staff without startTime or endTime', async () => {
         mockGetAllStaffsByCompanyId.mockResolvedValue([Staff.build({ id: 1 })]);
+        mockGetWeekdayIdByName.mockResolvedValue(1);
         mockGetStaffWorkday.mockResolvedValue(StaffWorkDay.build({
         isActive: true,
         startTime: null,
@@ -56,6 +61,7 @@ describe('Unit: getBookingsTimeSlots', () => {
 
     it('should NOT block time if off day has null dates (i.e., no off day)', async () => {
     mockGetAllStaffsByCompanyId.mockResolvedValue([Staff.build({ id: 1 })]);
+    mockGetWeekdayIdByName.mockResolvedValue(1);
     mockGetStaffWorkday.mockResolvedValue(StaffWorkDay.build({
         isActive: true,
         startTime: '09:00',
@@ -74,6 +80,7 @@ describe('Unit: getBookingsTimeSlots', () => {
 
     it('should return available time slots when no bookings or off days', async () => {
         mockGetAllStaffsByCompanyId.mockResolvedValue([Staff.build({ id: 1 })]);
+        mockGetWeekdayIdByName.mockResolvedValue(1);
         mockGetStaffWorkday.mockResolvedValue(StaffWorkDay.build({
         isActive: true,
         startTime: '09:00',
@@ -89,6 +96,7 @@ describe('Unit: getBookingsTimeSlots', () => {
 
     it('should mark slots as unavailable if booking overlaps', async () => {
         mockGetAllStaffsByCompanyId.mockResolvedValue([Staff.build({ id: 1 })]);
+        mockGetWeekdayIdByName.mockResolvedValue(1);
         mockGetStaffWorkday.mockResolvedValue(StaffWorkDay.build({
         isActive: true,
         startTime: '06:00',
@@ -109,6 +117,7 @@ describe('Unit: getBookingsTimeSlots', () => {
 
     it('should ignore cancelled bookings', async () => {
         mockGetAllStaffsByCompanyId.mockResolvedValue([Staff.build({ id: 1 })]);
+        mockGetWeekdayIdByName.mockResolvedValue(1);
         mockGetStaffWorkday.mockResolvedValue(StaffWorkDay.build({
         isActive: true,
         startTime: '09:00',
