@@ -4,7 +4,7 @@ interface BookingRequest {
     serviceId?: number;
     customerName: string;
     customerPhone: string;
-    startTime: Date;
-    endTime: Date;
+    startTime: string;
+    endTime: string;
 };
 export default BookingRequest;

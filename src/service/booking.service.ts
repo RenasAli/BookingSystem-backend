@@ -2,6 +2,8 @@ import BookingRequest from "../dto/RequestDto/BookingRequest";
 import { CreateBooking } from "../dto/RequestDto/CreateBooking";
 import { Booking, OffDay, Staff } from "../model";
 import { Status } from "../model/booking.model";
+import dayjs from "../util/dayjs";
+import { parseLocalISOString } from "../util/parseLocalISOString";
 import * as CompanyService from "./company.service"
 import * as StaffService from "./staff.service";
 import * as WeekdayService from "./weekday.service";
@@ -35,8 +37,8 @@ const updateBookingStatus = async (bookingId: number, companyId: number, status:
 
 const createBooking = async (bookingRequest: BookingRequest): Promise<Booking> => {
   try {
-    const startTime = new Date(bookingRequest.startTime);
-    const endTime = new Date(bookingRequest.endTime);
+    const startTime = await parseLocalISOString(bookingRequest.startTime);
+    const endTime = await parseLocalISOString(bookingRequest.endTime);
 
     const isCompanyOpen = await CompanyService.isCompanyOpen(bookingRequest.companyId, startTime, endTime);
     if (!isCompanyOpen) throw new Error("The company is closed at this time");
@@ -63,8 +65,8 @@ const createBooking = async (bookingRequest: BookingRequest): Promise<Booking> =
 
 const createBookingByStaff = async (bookingRequest: CreateBooking, companyId: number): Promise<Booking> => {
   try {
-    const startTime = new Date(bookingRequest.startTime);
-    const endTime = new Date(bookingRequest.endTime);
+    const startTime = await parseLocalISOString(bookingRequest.startTime.toLocaleString());
+    const endTime = await parseLocalISOString(bookingRequest.endTime.toLocaleString());
 
     const isCompanyOpen = await CompanyService.isCompanyOpen(companyId, startTime, endTime);
     if (!isCompanyOpen) throw new Error("The company is closed at this time");
@@ -106,7 +108,7 @@ const getBookingsTimeSlots = async (
     const buildDateWithTime = (timeStr: string): Date => {
       const [hours, minutes] = timeStr.split(":").map(Number);
       const d = new Date(date);
-      d.setHours(hours, minutes, 0, 0);
+      d.setHours(hours +2, minutes, 0, 0);
       return d;
     };
 
@@ -117,23 +119,29 @@ const getBookingsTimeSlots = async (
       const workStart = buildDateWithTime(workday.startTime);
       const workEnd = buildDateWithTime(workday.endTime);
 
+      const dayStart = new Date(date);
+      dayStart.setHours(0, 0, 0, 0);
+
+      const dayEnd = new Date(date);
+      dayEnd.setHours(23, 59, 59, 999);
+
       const offDays = await OffDay.findAll({
         where: {
           staffId: staff.id,
-          startDate: { [Op.lte]: date },
-          endDate: { [Op.gte]: date },
+          [Op.and]: [
+            { startDate: { [Op.lt]: dayEnd } },
+            { endDate: { [Op.gt]: dayStart } },
+          ],
         },
       });
 
       let offRanges: { start: Date; end: Date }[] = [];
       for (const off of offDays) {
-        if (!off.startDate || !off.endDate) {
-          offRanges = [{ start: workStart, end: workEnd }];
-          break;
-        }
+        if (!off.startDate || !off.endDate) continue;
+
         offRanges.push({
-          start: buildDateWithTime(off.startDate),
-          end: buildDateWithTime(off.endDate),
+          start: new Date(off.startDate),
+          end: new Date(off.endDate),
         });
       }
 
@@ -153,8 +161,8 @@ const getBookingsTimeSlots = async (
         const slotStart = new Date(cursor);
         const slotEnd = new Date(cursor.getTime() + serviceDurationMinutes * 60000);
 
-        const overlapsSlotStart = new Date(cursor.getTime() + 120 * 60000);
-        const overlapsSlotEnd = new Date(cursor.getTime() + (serviceDurationMinutes + 120) * 60000);
+        const overlapsSlotStart = new Date(cursor.getTime());
+        const overlapsSlotEnd = new Date(cursor.getTime() + serviceDurationMinutes * 60000);
 
         const overlapsOff = offRanges.some(off => overlapsSlotStart < off.end && overlapsSlotEnd > off.start);
         const overlapsBooking = bookings.some(b => overlapsSlotStart < b.endTime && overlapsSlotEnd > b.startTime);
@@ -164,8 +172,8 @@ const getBookingsTimeSlots = async (
 
         const isAvailable = !overlapsOff && !overlapsBooking && !isTooSoon;
 
-        const startTimeStr = slotStart.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' });
-        const endTimeStr = slotEnd.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' });
+        const startTimeStr = dayjs.utc(slotStart).format('HH:mm');
+        const endTimeStr = dayjs.utc(slotEnd).format('HH:mm');
 
         const existingSlot = result.find(s => s.startTime === startTimeStr && s.endTime === endTimeStr);
         if (existingSlot) {

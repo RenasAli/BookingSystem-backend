@@ -2,6 +2,9 @@ import CompanyWorkDay from '../../src/model/companyWorkday.model';
 import * as CompanyService from '../../src/service/company.service'
 import * as WeekdayService from '../../src/service/weekday.service';
 import * as WorkdayService from '../../src/service/workday.service';
+import { setupDBForUnitTest } from '../fixtures/setupTestDB';
+
+setupDBForUnitTest();
 
 describe('Unit: isCompanyOpen', () => {
   const mockGetWeekdayIdByName = jest.spyOn(WeekdayService, 'getWeekdayIdByName');
@@ -10,8 +13,7 @@ describe('Unit: isCompanyOpen', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
-
-
+  
   it('should return true if company is open during the time range', async () => {
     const startTime = new Date('2025-07-07T08:30:00Z');
     const endTime = new Date('2025-07-07T09:30:00Z');

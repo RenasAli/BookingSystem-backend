@@ -12,6 +12,7 @@ import * as WeekdayService from "./weekday.service";
 import { getAllServicesByCompanyId } from './service.service';
 import { PublicCompanyResponse } from '../dto/ResponseDto/PublicCompanyResponse';
 import StaffWorkday from '../model/staffWorkday.model';
+import dayjs from '../util/dayjs';
 
 
 const toCompanyDto = (company: Company): CompanyResponse => ({
@@ -325,9 +326,13 @@ const isCompanyOpen = async (
 
   const buildDateWithTime = (baseDate: Date, timeStr: string): Date => {
     const [hours, minutes] = timeStr.split(':').map(Number);
-    const result = new Date(baseDate);
-    result.setHours(hours + 2, minutes, 0, 0);
-    return result;
+
+    const year = baseDate.getUTCFullYear();
+    const month = baseDate.getUTCMonth();
+    const day = baseDate.getUTCDate();
+
+    const utcDate = new Date(Date.UTC(year, month, day, hours, minutes, 0, 0));
+    return utcDate;
   };
 
   const openDateTime = buildDateWithTime(startTime, companyWorkday.openTime);

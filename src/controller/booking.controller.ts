@@ -14,7 +14,7 @@ import { AuthenticatedRequest } from '../util/authorize';
 const createBooking = async (_req: Request, res: Response) => {
     try {
       const request: BookingRequest = _req.body;
-      const company = await CompanyService.getCompanyById(request.companyId)
+      const company = await CompanyService.getCompanyById(request.companyId);
       const booking = await BookingService.createBooking(request);
 
       if(company?.confirmationMethod === ConfirmationMethod.Depositum){

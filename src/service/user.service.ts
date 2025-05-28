@@ -3,6 +3,7 @@ import { CreateCompanyAndAdmin } from "../dto/RequestDto/CreateCompanyAndAdmin";
 import { CreateStaff } from "../dto/RequestDto/CreateStaff";
 import { User } from "../model";
 import Role from "../model/enum/Role";
+
 import { hashPassword } from "../util/HashPassword";
 
 
@@ -54,14 +55,7 @@ const createCompanyUserAsStaff = async (
   return user.id;
 };
 
-function validatePassword(password: string): void {
-  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-  if (!regex.test(password)) {
-    throw new Error(
-      "Password must be at least 8 characters long and include uppercase, lowercase, and a number."
-    );
-  }
-}
+
 
 export {
   createCompanyAdmin,

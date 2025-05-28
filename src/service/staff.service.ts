@@ -215,33 +215,28 @@ const isActiveStaff = async (staffId: number, startTime: Date, endTime: Date): P
 
     const buildDateWithTime = (baseDate: Date, timeStr: string): Date => {
         const [hours, minutes] = timeStr.split(':').map(Number);
-        const result = new Date(baseDate);
-        result.setHours(hours + 2, minutes, 0, 0);
-        return result;
+
+        const year = baseDate.getUTCFullYear();
+        const month = baseDate.getUTCMonth();
+        const day = baseDate.getUTCDate();
+
+        const utcDate = new Date(Date.UTC(year, month, day, hours, minutes, 0, 0));
+        return utcDate;
     };
 
     const startDateTime = buildDateWithTime(startTime, staffWorkday.startTime);
     const endDateTime = buildDateWithTime(startTime, staffWorkday.endTime);
 
-    const offDays = await OffDay.findAll({
+    const totalOffDay = await OffDay.count({
         where: {
-          staffId: staffId,
-          startDate: { [Op.lte]: startTime },
-          endDate: { [Op.gte]: endTime },
+            staffId,
+            startDate: { [Op.lte]: startTime },
+            endDate: { [Op.gte]: endTime },
         },
-      });
+    })
 
-    for (const off of offDays) {
-        if (!off.startDate || !off.endDate) {
-            return false;
-        }
-
-        const offStart = buildDateWithTime(startTime, off.startDate);
-        const offEnd = buildDateWithTime(startTime, off.endDate);
-
-        if (startTime < offEnd && endTime > offStart) {
-            return false;
-        }
+    if (totalOffDay > 0) {
+    return false;
     }
 
     const existingBooking = await Booking.findOne({
@@ -279,5 +274,6 @@ export {
     getStaffByUserId,
     deleteStaff,
     getAvailableStaffId,
-    updateStaffProfile
+    updateStaffProfile,
+    isActiveStaff
 };
