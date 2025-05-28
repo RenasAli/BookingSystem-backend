@@ -11,6 +11,7 @@ import bookingRouter from './route/booking.routes';
 import webhookouter from './route/webhooks.routes';
 import offDayRouter from './route/offDay.routes';
 import smsRouter from './route/sms.route';
+import sanitizeAndValidateInput from './util/sanitizeAndValidateInput';
 
 
 dotenv.config();
@@ -24,6 +25,7 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use(sanitizeAndValidateInput);
 app.use('/api', authenticationRouter);
 app.use('/api/company', companyRoutes);
 app.use('/api/staff', staffRouter);
