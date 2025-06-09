@@ -127,8 +127,10 @@ const updateCompanyLogo = async (_req: Request, res: Response) => {
 };
 
 const deleteCompany = async (_req: Request, res: Response) => {
+   console.log("test")
   try {
     const companyId = Number(_req.params.id);
+    console.log("deleteCompany controller test")
     await CompanyService.deleteCompany(companyId);
     res.status(200).json({ message: `Company ${companyId} deleted successfully!` });
   } catch (error) {
