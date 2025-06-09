@@ -35,7 +35,6 @@ const getServiceById = async (id: number, companyId: number): Promise<Service | 
             companyId: companyId
         }
     });
-    console.log(service)
     return service;
 };
 
