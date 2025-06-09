@@ -66,4 +66,10 @@ jobs:
           
       - name: Run api tests
         run: npm run test:api
+      
+      - name: Show backend logs on failure
+        if: failure()
+        run: |
+          echo "======= BACKEND LOG (app.log) ======="
+          cat app.log
 
