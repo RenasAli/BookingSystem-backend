@@ -31,7 +31,6 @@ const createPaymentSession = async (booking: Booking, company: CompanyResponse)=
             success_url: `${frontendUrl}/public/booking/${company.url}?status=success`,
             cancel_url: `${frontendUrl}/public/booking/${company.url}?status=cancel`,
         });
-    
         return session.url;
     } catch (err) {
         throw new Error("Error create payment session: " + err)

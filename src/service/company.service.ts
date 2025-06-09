@@ -268,7 +268,6 @@ const updateCompanyLogo = async (
 
 const deleteCompany = async (companyId: number): Promise<void> => {
   const transaction = await sequelize.transaction();
-
   try {
     const company = await Company.findByPk(companyId, {
       include: [Address, User],

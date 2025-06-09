@@ -14,8 +14,12 @@ jobs:
       DB_USERNAME: ${{ secrets.DB_USERNAME }}
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+      CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+      CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+      CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
 
     steps:
       - name: Checkout code
@@ -66,4 +70,10 @@ jobs:
           
       - name: Run api tests
         run: npm run test:api
+      
+      - name: Show backend logs on failure
+        if: failure()
+        run: |
+          echo "======= BACKEND LOG (app.log) ======="
+          cat app.log
 
