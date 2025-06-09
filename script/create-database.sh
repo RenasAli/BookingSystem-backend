@@ -33,6 +33,7 @@ if [ $? -eq 0 ]; then
     npx ts-node src/config/seeders/allData.ts
     # Remember to delete admin seeding when deploying to production
     npx ts-node src/config/seeders/adminUser.ts
+    npx ts-node src/config/seeders/secondCompany.ts
 else
     echo "Error creating database."
     exit 1
