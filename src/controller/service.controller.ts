@@ -8,6 +8,9 @@ const getAllServices = async (_req: AuthenticatedRequest, res: Response) => {
         const user = _req.user!;
         const companyId = user.companyId
         const services = await ServiceService.getAllServicesByCompanyId(companyId);
+        console.log("---------")
+        console.log(services)
+        console.log("-------")
         return res.status(200).json(services);
     } catch (err) {
         console.error(err);
