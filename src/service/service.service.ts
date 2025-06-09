@@ -62,6 +62,7 @@ const updateService = async (id: number, companyId: number, serviceRequest: Crea
 };
 
 const deleteService = async (id: number, companyId: number): Promise<void> => {
+    console.log(id + "   " + companyId)
     const service = await getServiceById(id, companyId);
     if (!service) {
         throw new Error('Service not found.');
