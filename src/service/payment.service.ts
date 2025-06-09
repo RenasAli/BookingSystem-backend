@@ -7,6 +7,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 const createPaymentSession = async (booking: Booking, company: CompanyResponse)=>{
     const frontendUrl = process.env.FRONTEND_URL
+    console.log(frontendUrl)
+    console.log("-----")
+    console.log(company)
     try {
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
@@ -31,7 +34,9 @@ const createPaymentSession = async (booking: Booking, company: CompanyResponse)=
             success_url: `${frontendUrl}/public/booking/${company.url}?status=success`,
             cancel_url: `${frontendUrl}/public/booking/${company.url}?status=cancel`,
         });
-    
+        console.log("---------------")
+        console.log(session)
+
         return session.url;
     } catch (err) {
         throw new Error("Error create payment session: " + err)
