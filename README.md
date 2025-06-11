@@ -27,4 +27,4 @@
   By following these steps, you can run the Salon Booking System.
 
 ## Note
-  Make sure to set your own .env variables if you want to use Stripe, Twilio, or Cloudinary.
+  Make sure to set your own .env variables if you want to use Stripe, Twilio, or Cloudinary and the docker is running at your machine
