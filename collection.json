@@ -1,0 +1,1671 @@
+{
+	"info": {
+		"_postman_id": "8f87d5e6-3fc5-4096-b88f-ad298a9bb155",
+		"name": "BookingSystem",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23807870",
+		"_collection_link": "https://testing-mandatory.postman.co/workspace/Booking~038c4512-368e-4eb0-bdfb-b085344e0660/collection/23807870-8f87d5e6-3fc5-4096-b88f-ad298a9bb155?action=share&source=collection_link&creator=23807870"
+	},
+	"item": [
+		{
+			"name": "Positive Tests",
+			"item": [
+				{
+					"name": "User",
+					"item": [
+						{
+							"name": "Login as Admin",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"admin@mail.com\",\n    \"password\": \"123123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/login",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Logout",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/logout",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"logout"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login as Admin to complite tests",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"admin@mail.com\",\n    \"password\": \"123123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/login",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Company",
+					"item": [
+						{
+							"name": "Add Company",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate Company Creation",
+											"pm.test(\"Status code is 201 Created\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											"",
+											"// Test for succesful message",
+											"pm.test(\"Response contains success message\", function () {",
+											"    let jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('message', \"Company is created successfully!\")",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"adminName\": \"test\",\n    \"cvr\": \"454545\",\n    \"url\": \"test2-salon\",\n    \"logo\": \"test2-salon.jpg\",\n    \"confirmationMethod\": \"confirmation_code\" ,\n    \"companyEmail\": \"tes2@salon.dk\",\n    \"adminEmail\": \"test10@test.dk\",\n    \"adminPassword\": \"123123\",\n    \"companyName\": \"Test Salon2\",\n    \"companyPhone\": \"32323223\" ,\n    \"street\": \"Parkvej 22\",\n    \"city\": \"Køge\",\n    \"zipCode\": \"4600\",\n    \"workday\": [\n        {\n        \"weekdayId\": 1,\n        \"isOpen\": true,\n        \"openTime\": \"09:00:00\",\n        \"closeTime\": \"17:00:00\"\n        },\n        {\n        \"weekdayId\": 2,\n        \"isOpen\": true,\n        \"openTime\": \"09:00:00\",\n        \"closeTime\": \"17:00:00\"\n        },{\n        \"weekdayId\": 3,\n        \"isOpen\": true,\n        \"openTime\": \"09:00:00\",\n        \"closeTime\": \"17:00:00\"\n        },{\n        \"weekdayId\": 4,\n        \"isOpen\": true,\n        \"openTime\": \"09:00:00\",\n        \"closeTime\": \"17:00:00\"\n        },{\n        \"weekdayId\": 5,\n        \"isOpen\": true,\n        \"openTime\": \"09:00:00\",\n        \"closeTime\": \"17:00:00\"\n        },{\n        \"weekdayId\": 6,\n        \"isOpen\": true,\n        \"openTime\": \"09:00:00\",\n        \"closeTime\": \"17:00:00\"\n        },{\n        \"weekdayId\": 7,\n        \"isOpen\": false,\n        \"openTime\": \"00:00:00\",\n        \"closeTime\": \"00:00:00\"\n        }\n  ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/company",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"company"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GetAll Company",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate response structure",
+											"pm.test(\"Response contains expected properties\", function () {",
+											"    let jsonData = pm.response.json();",
+											"    ",
+											"    // Validate that the response is an array",
+											"    pm.expect(jsonData).to.be.an('array');",
+											"",
+											"    for (i = 0; i < jsonData.length; i++) {",
+											"        // Validate the properties of all companies",
+											"        let company = jsonData[i];",
+											"        pm.expect(company).to.have.property('id');",
+											"        pm.expect(company).to.have.property('name');",
+											"        pm.expect(company).to.have.property('cvr');",
+											"        pm.expect(company).to.have.property('phone');",
+											"        pm.expect(company).to.have.property('email');",
+											"        pm.expect(company).to.have.property('url');",
+											"        pm.expect(company).to.have.property('logo');",
+											"        pm.expect(company).to.have.property('confirmationMethod');",
+											"        pm.expect(company).to.have.property('address');",
+											"        pm.expect(company).to.have.property('user');",
+											"        pm.expect(company).to.have.property('createdAt');",
+											"        pm.expect(company).to.have.property('workday');",
+											"",
+											"        // Validate 'workday' is an array",
+											"        pm.expect(company.workday).to.be.an('array');",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/company",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"company"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get ById",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Define the expected company ID (update as needed)",
+											"const expectedCompanyId = 2;",
+											"",
+											"// Check the status code",
+											"pm.test(\"Status code is 200 when company exists\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"// Validate response structure for successful result",
+											"pm.test(\"Response contains expected properties when company exists\", function () {",
+											"    let jsonData = pm.response.json();",
+											"",
+											"    // Validate the top-level structure",
+											"",
+											"    let company = jsonData;",
+											"",
+											"    pm.expect(company).to.have.property('id', expectedCompanyId);",
+											"    pm.expect(company).to.have.property('name');",
+											"    pm.expect(company).to.have.property('cvr');",
+											"    pm.expect(company).to.have.property('phone');",
+											"    pm.expect(company).to.have.property('email');",
+											"    pm.expect(company).to.have.property('url');",
+											"    pm.expect(company).to.have.property('logo');",
+											"    pm.expect(company).to.have.property('confirmationMethod');",
+											"    pm.expect(company).to.have.property('address');",
+											"    pm.expect(company).to.have.property('user');",
+											"    pm.expect(company).to.have.property('createdAt');",
+											"    pm.expect(company).to.have.property('workday');",
+											"",
+											"    // Validate 'workday' is an array",
+											"    pm.expect(company.workday).to.be.an('array');",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/company/2",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"company",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get ByURL",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"",
+											"// Check the status code",
+											"pm.test(\"Status code is 200 when company exists\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"// Validate response structure for successful result",
+											"pm.test(\"Response contains expected properties when company exists\", function () {",
+											"    let jsonData = pm.response.json();",
+											"",
+											"    // Validate the top-level structure",
+											"",
+											"    let company = jsonData;",
+											"",
+											"    pm.expect(company).to.have.property('id');",
+											"    pm.expect(company).to.have.property('name');",
+											"    pm.expect(company).to.have.property('cvr');",
+											"    pm.expect(company).to.have.property('phone');",
+											"    pm.expect(company).to.have.property('email');",
+											"    pm.expect(company).to.have.property('logo');",
+											"    pm.expect(company).to.have.property('confirmationMethod');",
+											"    pm.expect(company).to.have.property('address');",
+											"    pm.expect(company).to.have.property('services');",
+											"    pm.expect(company).to.have.property('workday');",
+											"",
+											"    pm.expect(company.services).to.be.an('array');",
+											"    pm.expect(company.workday).to.be.an('array');",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/company/url/test2-salon",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"company",
+										"url",
+										"test2-salon"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Company",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate status code for successful update",
+											"pm.test(\"Status code is 200 OK\", function () {",
+											"    if (pm.response.code === 200) {",
+											"        pm.response.to.have.status(200);",
+											"    }",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"adminName\": \"test\",\n    \"cvr\": \"45454545\",\n    \"url\": \"test-salon-v2\",\n    \"logo\": \"test-salon.jpg\",\n    \"confirmationMethod\": \"depositum\" ,\n    \"companyEmail\": \"tes1@salon.dk\",\n    \"adminEmail\": \"test1@test.dk\",\n    \"companyName\": \"Test Salon\",\n    \"companyPhone\": \"32323223\" ,\n    \"street\": \"Parkvej 22\",\n    \"city\": \"Køge\",\n    \"zipCode\": \"4600\",\n     \"workday\": [\n    {\n      \"weekdayId\": 1,\n      \"isOpen\": true,\n      \"openTime\": \"09:00:00\",\n      \"closeTime\": \"17:00:00\"\n    },\n    {\n      \"weekdayId\": 2,\n      \"isOpen\": true,\n      \"openTime\": \"09:00:00\",\n      \"closeTime\": \"17:00:00\"\n    },{\n      \"weekdayId\": 3,\n      \"isOpen\": true,\n      \"openTime\": \"09:00:00\",\n      \"closeTime\": \"17:00:00\"\n    },{\n      \"weekdayId\": 4,\n      \"isOpen\": true,\n      \"openTime\": \"09:00:00\",\n      \"closeTime\": \"17:00:00\"\n    },{\n      \"weekdayId\": 5,\n      \"isOpen\": true,\n      \"openTime\": \"09:00:00\",\n      \"closeTime\": \"17:00:00\"\n    },{\n      \"weekdayId\": 6,\n      \"isOpen\": false,\n      \"openTime\": \"00:00:00\",\n      \"closeTime\": \"00:00:00\"\n    },{\n      \"weekdayId\": 7,\n      \"isOpen\": false,\n      \"openTime\": \"00:00:00\",\n      \"closeTime\": \"00:00:00\"\n    }\n  ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/company/2",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"company",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Company",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate status code for successful deletion",
+											"pm.test(\"Status code is 200 OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"// Validate success message for deletion",
+											"pm.test(\"Response contains success message\", function () {",
+											"    let jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('message');",
+											"    pm.expect(jsonData.message).to.include(\"Company\"); // Partial match for flexibility",
+											"    pm.expect(jsonData.message).to.include(\"deleted successfully!\");",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/company/2",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"company",
+										"2"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Service",
+					"item": [
+						{
+							"name": "Login as CompanyAdmin",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"test@test.dk\",\n    \"password\": \"123123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/login",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Service",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate Service Creation",
+											"pm.test(\"Status code is 201 Created\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											"",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Hår klip\",\r\n  \"description\": \"Standard service\",\r\n  \"price\": 100.0,\r\n  \"durationMinutes\": 30\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/service",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"service"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get AllServices",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate response structure",
+											"pm.test(\"Response contains expected properties\", function () {",
+											"    let jsonData = pm.response.json();",
+											"    ",
+											"    // Validate that the response is an array",
+											"    pm.expect(jsonData).to.be.an('array');",
+											"",
+											"    for (i = 0; i < jsonData.length; i++) {",
+											"        // Validate the properties of all services",
+											"        let service = jsonData[i];",
+											"        pm.expect(service).to.have.property('id');",
+											"        pm.expect(service).to.have.property('companyId');",
+											"        pm.expect(service).to.have.property('name');",
+											"        pm.expect(service).to.have.property('description');",
+											"        pm.expect(service).to.have.property('price');",
+											"        pm.expect(service).to.have.property('durationMinutes');",
+											"",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/service",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"service"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get ServisById",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const expectedServiceId = 5;",
+											"",
+											"// Check the status code",
+											"pm.test(\"Status code is 200 when service exists\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"// Validate response structure for successful result",
+											"pm.test(\"Response contains expected properties when service exists\", function () {",
+											"    let jsonData = pm.response.json();",
+											"",
+											"    // Validate the top-level structure",
+											"",
+											"    let service = jsonData;",
+											"",
+											"    pm.expect(service).to.have.property('id', expectedServiceId);",
+											"    pm.expect(service).to.have.property('companyId');",
+											"    pm.expect(service).to.have.property('name');",
+											"    pm.expect(service).to.have.property('description');",
+											"    pm.expect(service).to.have.property('price');",
+											"    pm.expect(service).to.have.property('durationMinutes');",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/service/5",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"service",
+										"5"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Service",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate status code for successful update",
+											"pm.test(\"Status code is 200 OK\", function () {",
+											"    if (pm.response.code === 200) {",
+											"        pm.response.to.have.status(200);",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Hår klip\",\r\n  \"description\": \"Standard hår service\",\r\n  \"price\": 100.0,\r\n  \"durationMinutes\": 30\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/service/5",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"service",
+										"5"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Service",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate status code for successful deletion",
+											"pm.test(\"Status code is 200 OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"// Validate success message for deletion",
+											"pm.test(\"Response contains success message\", function () {",
+											"    let jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('message');",
+											"    pm.expect(jsonData.message).to.include(\"Service\"); // Partial match for flexibility",
+											"    pm.expect(jsonData.message).to.include(\"deleted successfully!\");",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/service/5",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"service",
+										"5"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Booking",
+					"item": [
+						{
+							"name": "Create Booking",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate Booking Creation",
+											"pm.test(\"Status code is 201 Created\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											"",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"companyId\": 1,\n  \"serviceId\": 1,\n  \"customerName\": \"Hans Doe\",\n  \"customerPhone\": \"+4512345677\",\n  \"status\": \"pending\",\n  \"startTime\": \"2025-07-07T09:30:00Z\",\n  \"endTime\": \"2025-07-07T10:00:00Z\"\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/booking",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"booking"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create BookingByStaff",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate Booking Creation",
+											"pm.test(\"Status code is 201 Created\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"serviceId\": 1,\r\n    \"customerName\": \"Hans Doe\",\r\n    \"customerPhone\": \"+4512345677\",\r\n    \"startTime\": \"2025-05-07T13:00:00Z\",\r\n    \"endTime\": \"2025-05-07T13:45:00Z\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/booking/by-staff",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"booking",
+										"by-staff"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get BookingsTimeSlots",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate response structure",
+											"pm.test(\"Response contains expected properties\", function () {",
+											"    let jsonData = pm.response.json();",
+											"    ",
+											"    // Validate that the response is an array",
+											"    pm.expect(jsonData).to.be.an('array');",
+											"",
+											"    for (i = 0; i < jsonData.length; i++) {",
+											"        // Validate the properties of all services",
+											"        let timeSlot = jsonData[i];",
+											"        pm.expect(timeSlot).to.have.property('startTime');",
+											"        pm.expect(timeSlot).to.have.property('endTime');",
+											"        pm.expect(timeSlot).to.have.property('isAvailable');",
+											"",
+											"",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/booking/available-times?companyId=1&date=2025-05-13&duration=30",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"booking",
+										"available-times"
+									],
+									"query": [
+										{
+											"key": "companyId",
+											"value": "1"
+										},
+										{
+											"key": "date",
+											"value": "2025-05-13"
+										},
+										{
+											"key": "duration",
+											"value": "30"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get AllBookings",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate response structure",
+											"pm.test(\"Response contains expected properties\", function () {",
+											"    let jsonData = pm.response.json();",
+											"    ",
+											"    // Validate that the response is an array",
+											"    pm.expect(jsonData).to.be.an('array');",
+											"",
+											"    for (i = 0; i < jsonData.length; i++) {",
+											"        // Validate the properties of all services",
+											"        let booking = jsonData[i];",
+											"        pm.expect(booking).to.have.property('id');",
+											"        pm.expect(booking).to.have.property('companyId');",
+											"        pm.expect(booking).to.have.property('staffId');",
+											"        pm.expect(booking).to.have.property('serviceId');",
+											"        pm.expect(booking).to.have.property('customerName');",
+											"        pm.expect(booking).to.have.property('customerPhone');",
+											"        pm.expect(booking).to.have.property('status');",
+											"        pm.expect(booking).to.have.property('startTime');",
+											"        pm.expect(booking).to.have.property('endTime');",
+											"        pm.expect(booking).to.have.property('createdAt');",
+											"        pm.expect(booking).to.have.property('cancellationReason');",
+											"        pm.expect(booking).to.have.property('staff');",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/booking",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"booking"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get BookingById",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const expectedBookingId = 1;",
+											"",
+											"// Check the status code",
+											"pm.test(\"Status code is 200 when booking exists\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"// Validate response structure for successful result",
+											"pm.test(\"Response contains expected properties when booking exists\", function () {",
+											"    let jsonData = pm.response.json();",
+											"",
+											"    // Validate the top-level structure",
+											"    pm.expect(jsonData).to.have.property('id', expectedBookingId);",
+											"    pm.expect(jsonData).to.have.property('companyId');",
+											"    pm.expect(jsonData).to.have.property('staffId');",
+											"    pm.expect(jsonData).to.have.property('serviceId');",
+											"    pm.expect(jsonData).to.have.property('customerName');",
+											"    pm.expect(jsonData).to.have.property('customerPhone');",
+											"    pm.expect(jsonData).to.have.property('status');",
+											"    pm.expect(jsonData).to.have.property('startTime');",
+											"    pm.expect(jsonData).to.have.property('endTime');",
+											"    pm.expect(jsonData).to.have.property('createdAt');",
+											"    pm.expect(jsonData).to.have.property('cancellationReason');",
+											"    pm.expect(jsonData).to.have.property('staff');",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/booking/1",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"booking",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get BookingsByDate",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/booking/date/2025-05-20",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"booking",
+										"date",
+										"2025-05-20"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Booking",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate status code for successful update",
+											"pm.test(\"Status code is 200 OK\", function () {",
+											"    if (pm.response.code === 200) {",
+											"        pm.response.to.have.status(200);",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"companyId\": 1,\n  \"serviceId\": 1,\n  \"customerName\": \"Hans Doe\",\n  \"customerPhone\": \"+4512345677\",\n  \"startTime\": \"2025-07-07T09:30:00Z\",\n  \"endTime\": \"2025-07-07T10:00:00Z\"\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/booking/1",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"booking",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Booking",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate status code for successful deletion",
+											"pm.test(\"Status code is 200 OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"// Validate success message for deletion",
+											"pm.test(\"Response contains success message\", function () {",
+											"    let jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('message');",
+											"    pm.expect(jsonData.message).to.include(\"Booking\"); // Partial match for flexibility",
+											"    pm.expect(jsonData.message).to.include(\"deleted successfully!\");",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/booking/1",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"booking",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Send otp",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"phoneNumber\": \"+4522232268\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/sms/send-otp",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"sms",
+										"send-otp"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Verify otp",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"bookingId\": 1,\r\n  \"companyId\": 1,\r\n  \"phoneNumber\": \"+4522232268\",\r\n  \"code\": \"725896\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/booking/verify-booking",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"booking",
+										"verify-booking"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "OffDay",
+					"item": [
+						{
+							"name": "Add Offdays",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate OffDay Creation",
+											"pm.test(\"Status code is 201 Created\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											"",
+											"// Test for succesful message",
+											"pm.test(\"Response contains success message\", function () {",
+											"    let jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('message', \"Off day(s) created successfully!\")",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"staffIds\": [2],\n    \"startDate\": \"2025-05-14T09:00:00Z\",\n    \"endDate\": \"2025-05-16T18:00:00Z\"\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/off-day",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"off-day"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get AllOffDay",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate response structure",
+											"pm.test(\"Response contains expected properties\", function () {",
+											"    let jsonData = pm.response.json();",
+											"    ",
+											"    // Validate that the response is an array",
+											"    pm.expect(jsonData).to.be.an('array');",
+											"",
+											"    for (i = 0; i < jsonData.length; i++) {",
+											"        // Validate the properties of all services",
+											"        let offDay = jsonData[i];",
+											"        pm.expect(offDay).to.have.property('id');",
+											"        pm.expect(offDay).to.have.property('staffId');",
+											"        pm.expect(offDay).to.have.property('startDate');",
+											"        pm.expect(offDay).to.have.property('endDate');",
+											"        pm.expect(offDay).to.have.property('staffName');",
+											"",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/off-day",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"off-day"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All StaffOffDays",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/off-day/staff",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"off-day",
+										"staff"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update OffDayById",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate status code for successful update",
+											"pm.test(\"Status code is 200 OK\", function () {",
+											"    if (pm.response.code === 200) {",
+											"        pm.response.to.have.status(200);",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"startDate\": \"2025-05-13T11:00:00.000Z\",\n    \"endDate\": \"2025-05-16T18:00:00.000Z\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/off-day/1",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"off-day",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete OffDay",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate status code for successful deletion",
+											"pm.test(\"Status code is 200 OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"// Validate success message for deletion",
+											"pm.test(\"Response contains success message\", function () {",
+											"    let jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('message');",
+											"    pm.expect(jsonData.message).to.include(\"Off day deleted successfully\");",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/off-day/1",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"off-day",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Staff",
+					"item": [
+						{
+							"name": "Login as CompanyAdmin",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"test@test.dk\",\n    \"password\": \"123123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/login",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Staff",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate Staff Creation",
+											"pm.test(\"Status code is 201 Created\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \" Ali\",\n    \"email\": \"ali@mail.com\",\n    \"password\": \"123123\",\n    \"phone\": \"42424266\",\n    \"staffWorkdays\": [\n        {\n        \"weekdayId\": 1,\n        \"isActive\": true,\n        \"startTime\": \"09:00:00\",\n        \"endTime\": \"17:00:00\"\n        },\n        {\n        \"weekdayId\": 2,\n        \"isActive\": true,\n        \"startTime\": \"09:00:00\",\n        \"endTime\": \"17:00:00\"\n        },\n        {\n        \"weekdayId\": 3,\n        \"isActive\": true,\n        \"startTime\": \"09:00:00\",\n        \"endTime\": \"17:00:00\"\n        },\n        {\n        \"weekdayId\": 4,\n        \"isActive\": true,\n        \"startTime\": \"09:00:00\",\n        \"endTime\": \"17:00:00\"\n        },\n        {\n        \"weekdayId\": 5,\n        \"isActive\": true,\n        \"startTime\": \"09:00:00\",\n        \"endTime\": \"17:00:00\"\n        },\n        {\n        \"weekdayId\": 6,\n        \"isActive\": true,\n        \"startTime\": \"09:00:00\",\n        \"endTime\": \"17:00:00\"\n        },\n        {\n        \"weekdayId\": 7,\n        \"isActive\": false,\n        \"startTime\": \"00:00:00\",\n        \"endTime\": \"00:00:00\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/staff",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"staff"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get AllStaff",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate response structure",
+											"pm.test(\"Response contains expected properties\", function () {",
+											"    let jsonData = pm.response.json();",
+											"    ",
+											"    // Validate that the response is an array",
+											"    pm.expect(jsonData).to.be.an('array');",
+											"",
+											"    for (i = 0; i < jsonData.length; i++) {",
+											"        // Validate the properties of all staff",
+											"        let staff = jsonData[i];",
+											"        pm.expect(staff).to.have.property('id');",
+											"        pm.expect(staff).to.have.property('name');",
+											"        pm.expect(staff).to.have.property('phone');",
+											"        pm.expect(staff).to.have.property('email');",
+											"        pm.expect(staff).to.have.property('userId');",
+											"        pm.expect(staff).to.have.property('companyId');",
+											"        pm.expect(staff).to.have.property('staffWorkdays');",
+											"",
+											"        // Validate 'staffWorkdays' is an array",
+											"        pm.expect(staff.staffWorkdays).to.be.an('array');",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/staff",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"staff"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get StaffById",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const expectedStaffId = 1;",
+											"",
+											"// Check the status code",
+											"pm.test(\"Status code is 200 when staff exists\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"// Validate response structure for successful result",
+											"pm.test(\"Response contains expected properties when staff exists\", function () {",
+											"    let jsonData = pm.response.json();",
+											"",
+											"    // Validate the top-level structure",
+											"",
+											"    let staff = jsonData;",
+											"        pm.expect(staff).to.have.property('id', expectedStaffId);",
+											"        pm.expect(staff).to.have.property('name');",
+											"        pm.expect(staff).to.have.property('phone');",
+											"        pm.expect(staff).to.have.property('email');",
+											"        pm.expect(staff).to.have.property('userId');",
+											"        pm.expect(staff).to.have.property('companyId');",
+											"        pm.expect(staff).to.have.property('staffWorkdays');",
+											"",
+											"        // Validate 'staffWorkdays' is an array",
+											"        pm.expect(staff.staffWorkdays).to.be.an('array');",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/staff/1",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"staff",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Staff",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate status code for successful update",
+											"pm.test(\"Status code is 200 OK\", function () {",
+											"    if (pm.response.code === 200) {",
+											"        pm.response.to.have.status(200);",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Ali\",\n    \"email\": \"ali-updated@mail.com\",\n    \"phone\": \"42424242\",\n    \"workday\": [\n        {\n        \"weekdayId\": 1,\n        \"isActive\": true,\n        \"startTime\": \"09:00:00\",\n        \"endTime\": \"17:00:00\"\n        },\n        {\n        \"weekdayId\": 2,\n        \"isActive\": true,\n        \"startTime\": \"09:00:00\",\n        \"endTime\": \"17:00:00\"\n        },\n        {\n        \"weekdayId\": 3,\n        \"isActive\": true,\n        \"startTime\": \"09:00:00\",\n        \"endTime\": \"17:00:00\"\n        },\n        {\n        \"weekdayId\": 4,\n        \"isActive\": true,\n        \"startTime\": \"09:00:00\",\n        \"endTime\": \"17:00:00\"\n        },\n        {\n        \"weekdayId\": 5,\n        \"isActive\": true,\n        \"startTime\": \"09:00:00\",\n        \"endTime\": \"17:00:00\"\n        },\n        {\n        \"weekdayId\": 6,\n        \"isActive\": false,\n        \"startTime\": \"00:00:00\",\n        \"endTime\": \"00:00:00\"\n        },\n        {\n        \"weekdayId\": 7,\n        \"isActive\": false,\n        \"startTime\": \"00:00:00\",\n        \"endTime\": \"00:00:00\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/staff/1",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"staff",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login as CompanyStaff",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"renas@mail.com\",\n    \"password\": \"123123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/login",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Profile",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate status code for successful update",
+											"pm.test(\"Status code is 200 OK\", function () {",
+											"    if (pm.response.code === 200) {",
+											"        pm.response.to.have.status(200);",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Renas Ali\",\n    \"email\": \"renas@mail.com\",\n    \"phone\": \"4444444\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/staff/update/profile",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"staff",
+										"update",
+										"profile"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login as CompanyAdmin",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"test@test.dk\",\n    \"password\": \"123123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/login",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Staff",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Validate status code for successful deletion",
+											"pm.test(\"Status code is 200 OK\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"// Validate success message for deletion",
+											"pm.test(\"Response contains success message\", function () {",
+											"    let jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('message');",
+											"    pm.expect(jsonData.message).to.include(\"Staff\"); // Partial match for flexibility",
+											"    pm.expect(jsonData.message).to.include(\"deleted successfully!\");",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/staff/3",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"staff",
+										"3"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Logout",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/logout",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"logout"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "http://localhost:3000/api",
+			"type": "default"
+		}
+	]
+}
